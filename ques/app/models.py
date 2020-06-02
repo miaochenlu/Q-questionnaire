@@ -73,8 +73,9 @@ class User(UserMixin, db.Model):
     confirmed = db.Column(db.Boolean, default=False)
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    posts = db.relationship('Post', backref="author", lazy="dynamic")
+    questionaires = db.relationship('Questionaire', backref="author", lazy="dynamic")
 
+    posts = db.relationship('Post', backref="author", lazy="dynamic")
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.role is None:
@@ -169,20 +170,33 @@ class Post(db.Model):
                         markdown(value, output_format='html'),
                         tags=allowed_tags, strip=True))
     
-    @staticmethod
-    def generate_fake(count=100):
-        from random import seed, randint
-        import forgery_py
 
-        seed()
-        user_count = User.query.count()
-        for i in range(count):
-            u = User.query.offset(randint(0, user_count - 1)).first() 
-            p = Post(body=forgery_py.lorem_ipsum.sentences(randint(1, 3)),
-                    timestamp=forgery_py.date.date(True),
-                    author=u) 
-            db.session.add(p) 
-            db.session.commit()
+class Questionaire(db.Model):
+    __tablename__ = "questionaires"
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(20))
+    description = db.Column(db.Text())
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    questions = db.relationship('Question', backref="questionaire", lazy="dynamic")
 
-db.event.listen(Post.body, 'set', Post.on_change_body)
+class Question(db.Model):
+    __tablename__ = "questions"
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.Integer)
+    description = db.Column(db.String(64))
+    must_do = db.Column(db.Boolean)
+    questionaire_id = db.Column(db.Integer, db.ForeignKey('questionaires.id'))
+    options = db.relationship('Option', backref="question", lazy="dynamic")
+    
+
+class Option(db.Model):
+    __tablename__ = "options"
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(64))
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+
+
+
+
 login_manager.anonymous_user = AnonymousUser

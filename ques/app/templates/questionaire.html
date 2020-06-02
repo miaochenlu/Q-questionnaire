@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Flasky - Questionaire{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h1>
+            {{ questionaire_name}}
+        </h1>
+        <p>{{questionaire_description}}</p>
+    </div>
+
+    <div class="col-sm-9 col-md-10">
+        <form method="POST">
+            <div id="ques_list">
+                {% for i in range(0, length) %}
+                <div id="ques_{{i}}.div" class="form-group row well">
+                    <div class="row">
+                        <label class="form-label" id="ques_{{i}}.description">{{i+1}}.&nbsp;{{renderQuestions[i].question.description}}</label>
+                    </div>
+                    
+                    {% if renderQuestions[i].question.type == 0 %}
+                    <ul style="list-style-type: none;">
+                        {% for j in range(0, renderQuestions[i].options|length) %}
+                            <li>
+                                <input class="form-check-input" type="radio" value="{{j}}" disabled="disabled"/>
+                                <label class="form-check-label">{{ renderQuestions[i].options[j].description}}</label>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% elif renderQuestions[i].question.type == 1 %}
+                        <ul class="form-inline" style="list-style-type: none;">
+                        {% for j in range(0, renderQuestions[i].options|length) %}
+                            <li>
+                                <input class="form-check-input" type="checkbox" value="{{j}}" disabled="disabled"/>
+                                <label class="form-check-label">{{ renderQuestions[i].options[j].description}}</label>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% elif  renderQuestions[i].question.type == 2 %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <textarea rows="8" class="form-control" name="ques_{{i}}.ans" disabled="disabled"></textarea>
+                            </div>
+                        </div>
+                    {% elif  renderQuestions[i].question.type == 3 %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="number" value="{{j}}" disabled="disabled"/>
+                            </div>
+                        </div>
+
+                    {% elif  renderQuestions[i].question.type == 4 %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="number" value="{{j}}" disabled="disabled"/>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </form>
+
+    </div>
+
+{% endblock %}

@@ -3,9 +3,9 @@ from flask import render_template, session, redirect, url_for, flash, request, c
 from flask import abort
 from flask_login import current_user, login_required
 from . import main
-from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm
+from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm, CreateQuestionaireForm
 from .. import db
-from ..models import User, Role, Post, Permission
+from ..models import User, Role, Post, Permission, Questionaire, Question, Option
 from ..decorators import admin_required
 
 @main.route('/', methods=['GET', 'POST'])
@@ -95,3 +95,102 @@ def edit(id):
         return redirect(url_for('main.post', id=post.id))
     form.body.data = post.body
     return render_template('edit_post.html', form=form)
+
+@main.route('/questionaire/create', methods=['GET', 'POST'])
+@login_required
+def create():
+    form = CreateQuestionaireForm()
+    if form.validate_on_submit():
+        q = Questionaire(title=form.title.data, 
+                        description=form.description.data,
+                        author=current_user._get_current_object()
+                        )
+        db.session.add(q)
+        db.session.commit()
+        return redirect(url_for('main.create_question', id=q.id))
+    return render_template('create.html', form=form)
+
+@main.route('/questionaire/<int:id>/create_question', methods=['GET', 'POST'])
+@login_required
+def create_question(id):
+    def get_questions():
+        # questions = []
+        question_count = 0
+        questionaire = Questionaire.query.get_or_404(id)
+        while True:
+            question_form = 'ques_' + str(question_count)
+            if question_form + '.type' in request.form:
+                # question = {
+                #     "type" : request.form[question_form + '.type'],
+                #     "description": request.form[question_form + '.description'],
+                #     "options" : get_options(question_form)
+
+                # }
+                # type = db.Column(db.Integer)
+                # description = db.Column(db.String(64))
+                # must_do = db.Column(db.Boolean)
+                # questionaire_id = db.Column(db.Integer, db.ForeignKey('questionaires.id'))
+                # options = db.relationship('Option', backref="question", lazy="dynamic")
+                add_db_question = Question(
+                    type = request.form[question_form + '.type'],
+                    description = request.form[question_form + '.description'],
+                    must_do = True if request.form[question_form + '.must_do'] == "on" else False,
+                    questionaire = questionaire
+                )
+                
+                db.session.add(add_db_question)
+                db.session.commit()
+                get_options(question_form, add_db_question.id)
+                question_count += 1
+            else:
+                break
+
+    def get_options(question_form, question_id):
+        option_count = 0
+        question = Question.query.get_or_404(question_id)
+        while True:
+            option = question_form + '.option_' + str(option_count)
+            if option in request.form:
+                db_add_option = Option (
+                    description = request.form[option],
+                    question = question
+                )
+                db.session.add(db_add_option)
+                db.session.commit()
+                option_count += 1
+            else:
+                break
+
+    questionaire = Questionaire.query.get_or_404(id)
+    if current_user != questionaire.author:
+        abort(403)
+    
+    if request.method == 'POST':
+        questions = get_questions()
+        return redirect(url_for('main.questionaire', id=questionaire.id))
+
+    return render_template('create_question.html')
+
+
+@main.route('/questionaire/<int:id>')
+@login_required
+def questionaire(id):
+    questionaire = Questionaire.query.get_or_404(id)
+    if current_user != questionaire.author:
+        abort(403)
+    
+    questionaire_name = questionaire.title
+    questionaire_description = questionaire.description
+    questions = questionaire.questions.all()
+    # options = 
+    renderQuestions = []
+    for question in questions:
+        q = {
+                    "question" : question,
+                    "options" : question.options.all()
+        }
+        renderQuestions.append(q)
+    length = len(renderQuestions)
+
+    return render_template('questionaire.html', questionaire_name=questionaire_name,
+                            questionaire_description=questionaire_description, renderQuestions=renderQuestions, length=length)

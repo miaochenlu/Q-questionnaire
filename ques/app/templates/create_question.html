@@ -1,0 +1,38 @@
+
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}
+    Flasky - Create
+{% endblock title %}
+
+
+{% block head %}
+{{super()}}
+<script src="{{ url_for('static', filename='question.js') }}"></script> 
+{% endblock head %}
+
+{% block page_content %}
+<div class="col-sm-9 col-md-10">
+  <form method="POST">
+    <div id="ques_list">
+      
+    </div>
+    <button class="btn btn-default" type="submit">Submit</button>
+    <br/>
+    <br/>
+  </form>
+</div>
+<div class="col-sm-10 col-md-20">
+  <button type="button" class="btn btn-primary" onclick="create_question(0)">单选题</button>
+  <button type="button" class="btn btn-info" onclick="create_question(1)">多选题</button>
+  <button type="button" class="btn btn-success" onclick="create_question(2)">文字题</button>
+  <button type="button" class="btn btn-danger" onclick="create_question(3)">数字题</button>
+  <button type="button" class="btn btn-warning" onclick="create_question(4)">评分题</button>
+</div>
+<br>
+<br>
+{% endblock page_content %}
+
+
