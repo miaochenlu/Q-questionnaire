@@ -1,28 +1,23 @@
-<ul class="posts">
-    {% for post in posts %}
-    <li class="post">
-        <div class="post-content">
-            <div class="post-date">{{ moment(post.timestamp).fromNow() }}</div>
-            <div class="post-author"><a href="{{ url_for('.user', username=post.author.username) }}">{{ post.author.username }}</a></div>
-            <div class="post-body">
-                {% if post.body_html %}
-                    {{ post.body_html | safe }}
-                {% else %}
-                    {{ post.body }}
-                {% endif %}
-
-                <div class="post-footer">
-                    <a href="{{url_for('.post', id=post.id)}}">
-                        <span class="label label-default">Permalink</span>
+<div class="row">
+    {% for questionaire in questionaires %}
+    <div class="card well">
+        <div class="card-body">
+            <h4 class="card-title">{{ questionaire.title }}</h4>
+            <p class="card-text">{{ moment(questionaire.timestamp).fromNow() }}</p>
+            <p class="card-text"><a href="{{ url_for('.user', username=questionaire.author.username) }}">{{ questionaire.author.username }}</a></p>
+        </div>
+        <div class="questionaire-body">
+            <div class="questionaire-footer">
+                <a href="{{url_for('main.questionaire', id=questionaire.id)}}">
+                    <span class="label label-default">预览</span>
+                </a>
+                {% if current_user == questionaire.author %}
+                    <a href="{{ url_for('main.create_question', id=questionaire.id) }}">
+                        <span class="label label-primary">修改问题</span>
                     </a>
-                    {% if current_user == post.author %}
-                        <a href="{{ url_for('.edit', id=post.id) }}">
-                            <span class="label label-primary">Edit [Admin]</span>
-                        </a>
-                    {% endif %}
-                </div>
+                {% endif %}
             </div>
         </div>
-    </li>
+    </div>
     {% endfor %}
-</ul>
+</div>

@@ -17,13 +17,13 @@ def index():
         # db.session.commit()
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+    pagination = Questionaire.query.order_by(Questionaire.timestamp.desc()).paginate(
         page, per_page=current_app.config['FLASK_POSTS_PER_PAGE'],
         error_out=False
     )
-    posts = pagination.items
+    questionaires = pagination.items
 
-    return render_template('index.html', current_time=datetime.utcnow(), form=form, posts=posts, pagination=pagination)
+    return render_template('index.html', current_time=datetime.utcnow(), questionaires=questionaires, pagination=pagination)
 
 @main.route('/user/<username>')
 def user(username):
@@ -96,9 +96,15 @@ def edit(id):
     form.body.data = post.body
     return render_template('edit_post.html', form=form)
 
+
+
+
+
+###########################questionaire##############################
+
 @main.route('/questionaire/create', methods=['GET', 'POST'])
 @login_required
-def create():
+def create_questionaire():
     form = CreateQuestionaireForm()
     if form.validate_on_submit():
         q = Questionaire(title=form.title.data, 
@@ -108,33 +114,55 @@ def create():
         db.session.add(q)
         db.session.commit()
         return redirect(url_for('main.create_question', id=q.id))
-    return render_template('create.html', form=form)
+    return render_template('create_questionaire.html', form=form)
+
+
+def get_question_dict(questionaire):
+    if current_user != questionaire.author:
+        abort(403)
+    
+    questionaire_name = questionaire.title
+    questionaire_description = questionaire.description
+    questions = questionaire.questions.all()
+    # options = 
+    renderQuestions = []
+    for question in questions:
+        q = {
+                    "question" : question,
+                    "options" : question.options.all()
+        }
+        renderQuestions.append(q)
+    return renderQuestions
+
+def question_delete(questionaire):
+    if current_user != questionaire.author:
+        abort(403)
+    
+    questionaire_name = questionaire.title
+    questionaire_description = questionaire.description
+    questions = questionaire.questions.all()
+    # options = 
+    renderQuestions = []
+    for question in questions:
+        options = question.options.all()
+        for option in options:
+            db.session.delete(option)
+        db.session.delete(question)
+    db.session.commit()
 
 @main.route('/questionaire/<int:id>/create_question', methods=['GET', 'POST'])
 @login_required
 def create_question(id):
     def get_questions():
-        # questions = []
         question_count = 0
         questionaire = Questionaire.query.get_or_404(id)
         while True:
             question_form = 'ques_' + str(question_count)
             if question_form + '.type' in request.form:
-                # question = {
-                #     "type" : request.form[question_form + '.type'],
-                #     "description": request.form[question_form + '.description'],
-                #     "options" : get_options(question_form)
-
-                # }
-                # type = db.Column(db.Integer)
-                # description = db.Column(db.String(64))
-                # must_do = db.Column(db.Boolean)
-                # questionaire_id = db.Column(db.Integer, db.ForeignKey('questionaires.id'))
-                # options = db.relationship('Option', backref="question", lazy="dynamic")
                 add_db_question = Question(
                     type = request.form[question_form + '.type'],
                     description = request.form[question_form + '.description'],
-                    must_do = True if request.form[question_form + '.must_do'] == "on" else False,
+                    must_do = True if request.form[question_form + '.must_do'] == "1" else False,
                     questionaire = questionaire
                 )
                 
@@ -160,37 +188,33 @@ def create_question(id):
                 option_count += 1
             else:
                 break
+    
 
     questionaire = Questionaire.query.get_or_404(id)
     if current_user != questionaire.author:
         abort(403)
     
+    renderQuestions = get_question_dict(questionaire)
+    length = len(renderQuestions)
     if request.method == 'POST':
+        questionaire.title = request.form["questionaire_title"]
+        questionaire.description = request.form["questionaire_description"]
+        db.session.add(questionaire)
+        db.session.commit()
+        question_delete(questionaire)
         questions = get_questions()
         return redirect(url_for('main.questionaire', id=questionaire.id))
 
-    return render_template('create_question.html')
+    return render_template('create_question.html', questionaire=questionaire, renderQuestions=renderQuestions, length=length)
+
 
 
 @main.route('/questionaire/<int:id>')
 @login_required
 def questionaire(id):
     questionaire = Questionaire.query.get_or_404(id)
-    if current_user != questionaire.author:
-        abort(403)
-    
-    questionaire_name = questionaire.title
-    questionaire_description = questionaire.description
-    questions = questionaire.questions.all()
-    # options = 
-    renderQuestions = []
-    for question in questions:
-        q = {
-                    "question" : question,
-                    "options" : question.options.all()
-        }
-        renderQuestions.append(q)
+    renderQuestions = get_question_dict(questionaire)
     length = len(renderQuestions)
 
-    return render_template('questionaire.html', questionaire_name=questionaire_name,
-                            questionaire_description=questionaire_description, renderQuestions=renderQuestions, length=length)
+    return render_template('questionaire.html', questionaire=questionaire, 
+                            renderQuestions=renderQuestions, length=length)

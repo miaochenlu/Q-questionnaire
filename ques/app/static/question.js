@@ -26,22 +26,58 @@ function create_question(type){
     else b.innerHTML = "评分题";
     info_div.appendChild(b);
     new_question_div.appendChild(info_div);
-  
+// must do
     var must_do_div = document.createElement("div")
 
-    var new_question_must_do = document.createElement("input");
-    new_question_must_do.id = "ques_" + count + ".must_do";
-    new_question_must_do.name = "ques_" + count + ".must_do";
-    new_question_must_do.type = "checkbox";
-    new_question_must_do.checked="checked"
-    new_question_must_do.setAttribute("class", "form-check-input")
-    must_do_div.appendChild(new_question_must_do);
+    var must_do = document.createElement("input");
+    must_do.id = "ques_" + count + ".must_do";
+    must_do.name = "ques_" + count + ".must_do";
+    must_do.type = "radio";
+    must_do.checked = "checked";
+    must_do.value = "1";
+    must_do.setAttribute("class", "form-check-input")
+    must_do_div.appendChild(must_do);
+
+    var mustlabel = document.createElement("Label");
+    mustlabel.setAttribute("class", "form-check-label")
+    mustlabel.innerHTML = "必做";
+    must_do_div.appendChild(mustlabel);
+
+    var option_do = document.createElement("input");
+    option_do.id = "ques_" + count + ".option_do";
+    option_do.name = "ques_" + count + ".must_do";
+    option_do.type = "radio";
+    option_do.value = "0"
+    option_do.setAttribute("class", "form-check-input")
+    must_do_div.appendChild(option_do);
+ 
+    var optionlabel = document.createElement("Label");
+    optionlabel.setAttribute("class", "form-check-label")
+    optionlabel.innerHTML = "选做";
+    
+    must_do_div.appendChild(optionlabel);
+
+    must_do_div.setAttribute("class", "form-check form-check-inline")
+    must_do_div.style.marginLeft = "5px";
     new_question_div.appendChild(must_do_div);
-    var newlabel = document.createElement("Label");
-    newlabel.setAttribute("class", "form-check-label")
-    newlabel.innerHTML = "   must do? ";
-    must_do_div.setAttribute("class", "form-check form-group row")
-    must_do_div.appendChild(newlabel);
+  // option div
+    // var option_do_div = document.createElement("div");
+    // var option_do = document.createElement("input");
+    // option_do.id = "ques_" + count + ".must_do";
+    // option_do.name = "ques_" + count + ".must_do";
+    // option_do.type = "radio";
+
+    // option_do.setAttribute("class", "form-check-input")
+    // option_do_div.appendChild(option_do);
+ 
+    // var optionlabel = document.createElement("Label");
+    // optionlabel.setAttribute("class", "form-check-label")
+    // optionlabel.innerHTML = "选做";
+    
+    // option_do_div.appendChild(optionlabel);
+    // option_do_div.setAttribute("class", "form-check form-check-inline")
+    // new_question_div.appendChild(option_do_div);
+
 
 
     var new_question_div_head = document.createElement("div");
@@ -246,11 +282,12 @@ function delete_question(obj){
 function add_option(obj,type){
     var count=obj.parentNode.parentNode.parentNode.id.split('_')[1].split('.')[0];
     var ul=obj.parentNode.parentNode.nextSibling;
-    var ocount=0;
+    var ocount = 0;
     var radio;
-    if(type==0)radio="radio";
+    if(type == 0)radio="radio";
     else radio="checkbox";
     while(document.getElementById("ques_"+count+".option_"+ocount)!=null)ocount++;
+  
     var li=document.createElement("li");
     li.setAttribute("onmouseover","show_buttons(this,1)");
     li.setAttribute("onmouseout","hide_buttons(this,1)");

@@ -3,14 +3,16 @@
 {% block title %}Flasky - Questionaire{% endblock %}
 
 {% block page_content %}
-    <div class="page-header">
-        <h1>
-            {{ questionaire_name}}
-        </h1>
-        <p>{{questionaire_description}}</p>
+    <div class="row">
+        <div class="page-header">
+            <h1 class="text-center font-weight-bold mb-2">
+                {{ questionaire.title}}
+            </h1>
+            <p class="text-center font-weight-bold mb-2">{{questionaire.description}}</p>
+        </div>
     </div>
 
-    <div class="col-sm-9 col-md-10">
+    <div class>
         <form method="POST">
             <div id="ques_list">
                 {% for i in range(0, length) %}
@@ -20,27 +22,23 @@
                     </div>
                     
                     {% if renderQuestions[i].question.type == 0 %}
-                    <ul style="list-style-type: none;">
                         {% for j in range(0, renderQuestions[i].options|length) %}
-                            <li>
-                                <input class="form-check-input" type="radio" value="{{j}}" disabled="disabled"/>
-                                <label class="form-check-label">{{ renderQuestions[i].options[j].description}}</label>
-                            </li>
+                            <div class="custom-control custom-radio mt-2">
+                                <input class="custom-control-input" type="radio" value="{{j}}" disabled="disabled"/>
+                                <label class="custom-control-label">{{ renderQuestions[i].options[j].description}}</label>
+                            </div>
                         {% endfor %}
-                        </ul>
                     {% elif renderQuestions[i].question.type == 1 %}
-                        <ul class="form-inline" style="list-style-type: none;">
                         {% for j in range(0, renderQuestions[i].options|length) %}
-                            <li>
-                                <input class="form-check-input" type="checkbox" value="{{j}}" disabled="disabled"/>
-                                <label class="form-check-label">{{ renderQuestions[i].options[j].description}}</label>
-                            </li>
+                            <div class="custom-control custom-checkbox">
+                                <input class="custom-control-input" type="checkbox" value="{{j}}" disabled="disabled"/>
+                                <label class="custom-control-label">{{ renderQuestions[i].options[j].description}}</label>
+                            </div>
                         {% endfor %}
-                        </ul>
-                    {% elif  renderQuestions[i].question.type == 2 %}
+                    {% elif renderQuestions[i].question.type == 2 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <textarea rows="8" class="form-control" name="ques_{{i}}.ans" disabled="disabled"></textarea>
+                                <textarea rows="8" class="form-control mb-2" name="ques_{{i}}.ans" disabled="disabled"></textarea>
                             </div>
                         </div>
                     {% elif  renderQuestions[i].question.type == 3 %}
@@ -64,4 +62,47 @@
 
     </div>
 
+    
 {% endblock %}
+
+
+{% block content %}
+{{super()}}
+<!-- 侧滑菜单 -->
+<div id="wrapper">
+      <div class="overlay"></div> 
+      <!-- Sidebar -->
+      <nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation">
+          <ul class="nav sidebar-nav">
+              <li class="sidebar-brand">
+                  <a href="{{ url_for('main.index') }}">
+                     Home
+                  </a>
+              </li>
+              <li>
+                  <a href="{{ url_for('main.create_question', id=questionaire.id) }}"><i class="fa fa-fw fa-home"></i>modify</a>
+              </li>
+              <li>
+                  <a href="#"><i class="fa fa-fw fa-folder"></i>release</a>
+              </li>
+              <li>
+                  <a href="#"><i class="fa fa-fw fa-file-o"></i> Second page</a>
+              </li>
+              <li>
+                  <a href="#"><i class="fa fa-fw fa-cog"></i> Third page</a>
+              </li>
+          </ul>
+      </nav>
+      <!-- /#sidebar-wrapper -->
+
+      <!-- Page Content -->
+      <div id="page-content-wrapper">
+        <button type="button" class="hamburger is-closed animated fadeInLeft" data-toggle="offcanvas">
+          <span class="hamb-top"></span>
+          <span class="hamb-middle"></span>
+          <span class="hamb-bottom"></span>
+        </button>
+      </div>
+      <!-- /#page-content-wrapper -->
+</div>
+{% endblock content %}
