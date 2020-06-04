@@ -179,6 +179,7 @@ class Questionaire(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     questions = db.relationship('Question', backref="questionaire", lazy="dynamic")
+    releases = db.relationship('QuestionaireRelease', backref="questionaire", lazy="dynamic")
 
 class Question(db.Model):
     __tablename__ = "questions"
@@ -188,7 +189,7 @@ class Question(db.Model):
     must_do = db.Column(db.Boolean)
     questionaire_id = db.Column(db.Integer, db.ForeignKey('questionaires.id'))
     options = db.relationship('Option', backref="question", lazy="dynamic")
-    
+    questionanswers = db.relationship("QuestionAnswer", backref='question', lazy='dynamic')
 
 class Option(db.Model):
     __tablename__ = "options"
@@ -197,6 +198,36 @@ class Option(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
 
+class QuestionaireRelease(db.Model):
+    __tablename__ = "questionairereleases"
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime(), default=datetime.utcnow)
+    finish_time = db.Column(db.DateTime())
+    mode = db.Column(db.Integer)
+    times = db.Column(db.Integer)
+    status = db.Column(db.Boolean)
+    questionaire_id = db.Column(db.Integer, db.ForeignKey('questionaires.id'))
 
+    def valid(self):
+        current_time = datetime.utcnow()
+        if status and current_time > start_time and current_time < finish_time:
+            return True
+        return False
+
+class QuestionaireAnswer(db.Model):
+    __tablename__ = "questionaireanswers"
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime)
+    ip = db.Column(db.String(64))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    questionaire_id = db.Column(db.Integer, db.ForeignKey('questionaires.id'))
+    questionanswers = db.relationship("QuestionAnswer", backref='questionaireanswer', lazy='dynamic')
+
+class QuestionAnswer(db.Model):
+    __tablename__ = "questionanswers"
+    id = db.Column(db.Integer, primary_key=True)
+    questionaire_answer_id = db.Column(db.Integer, db.ForeignKey('questionaireanswers.id'))
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+    answer = db.Column(db.Text)
 
 login_manager.anonymous_user = AnonymousUser

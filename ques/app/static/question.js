@@ -169,7 +169,15 @@ function delete_question(obj){
       var question_div=document.getElementById("ques_"+count+".div");
       question_div.id="ques_"+(count-1)+".div";
       question_div.name="ques_"+(count-1)+".div";
-  
+      
+      var must_do = document.getElementById("ques_"+count+".must_do");
+      var option_do = document.getElementById("ques_"+count+".option_do");
+      must_do.id = "ques_" + (count - 1) + ".must_do";
+      must_do.name = "ques_" + (count - 1) + ".must_do";
+      option_do.id = "ques_" + (count - 1) + ".option_do";
+      option_do.name = "ques_" + (count - 1) + ".must_do";
+
+
       var question_type=document.getElementById("ques_"+count+".type");
       question_type.id="ques_"+(count-1)+".type";
       question_type.name="ques_"+(count-1)+".type";
@@ -198,7 +206,7 @@ function delete_question(obj){
   
   function move_question(obj,direction){
     var count=obj.parentNode.parentNode.parentNode.id.split('_')[1].split('.')[0];
-    var next_count=count;
+    var next_count = count;
     if(direction==1){
       next_count++;
     }
@@ -226,6 +234,43 @@ function delete_question(obj){
     var current_type=current_question_type.value;
     var next_type=next_question_type.value;
     
+
+    
+    var current_must_do = document.getElementById("ques_"+count+".must_do");
+    var current_option_do = document.getElementById("ques_"+count+".option_do");
+    var next_must_do = document.getElementById("ques_"+next_count+".must_do");
+    var next_option_do = document.getElementById("ques_"+next_count+".option_do");
+    
+    var current_must_do_check = current_must_do.checked;
+    var current_option_do_check = current_option_do.checked;
+    var next_must_do_check = next_must_do.checked;
+    var next_option_do_check = next_option_do.checked;
+
+    current_must_do.id = "ques_" + next_count + ".must_do";
+    current_must_do.name = "ques_" + next_count + ".must_do";
+    if( current_must_do_check) {
+      current_must_do.checked =  current_must_do_check;
+    }
+    current_option_do.id = "ques_" + next_count + ".option_do";
+    current_option_do.name = "ques_" + next_count + ".must_do";
+
+    if(current_option_do_check) {
+      current_option_do.checked = current_option_do_check
+    }
+
+    next_must_do.id = "ques_" + count + ".must_do";
+    next_must_do.name = "ques_" + count + ".must_do";
+    if(next_must_do_check){
+      next_must_do.checked = next_must_do_check;
+    }
+    next_option_do.id = "ques_" + count + ".option_do";
+    next_option_do.name = "ques_" + count + ".must_do";
+    if(next_option_do_check) {
+      next_option_do.checked = next_option_do_check;
+    }
+
+
+
     var current_question_description=document.getElementById("ques_"+count+".description");
     var next_question_description=document.getElementById("ques_"+next_count+".description");
     current_question_description.id="ques_"+next_count+".description";
@@ -287,7 +332,9 @@ function add_option(obj,type){
     if(type == 0)radio="radio";
     else radio="checkbox";
     while(document.getElementById("ques_"+count+".option_"+ocount)!=null)ocount++;
-  
+
+    console.log(count)
+
     var li=document.createElement("li");
     li.setAttribute("onmouseover","show_buttons(this,1)");
     li.setAttribute("onmouseout","hide_buttons(this,1)");
@@ -362,4 +409,74 @@ function hide_buttons(obj,type){
     $(str,obj).each(function(){
       $(this).hide()
     });
+}
+
+
+function move_option_prime(obj,direction){
+  var option=obj.parentNode.previousSibling.previousSibling;
+  var ques_count=option.id.split('_')[1].split('.')[0];
+  var option_count=option.id.split('_')[2];
+  var next_count=option_count;
+  if(direction==1){
+    next_count++;
+  }
+  else{
+    next_count--;
+  } 
+  var current_option=document.getElementById("ques_"+ques_count+".option_"+option_count);
+  var next_option=document.getElementById("ques_"+ques_count+".option_"+next_count);
+  if(current_option==null||next_option==null)return;
+  current_option.id="ques_"+ques_count+".option_"+next_count;
+  current_option.name="ques_"+ques_count+".option_"+next_count;
+  next_option.id="ques_"+ques_count+".option_"+option_count;
+  next_option.name="ques_"+ques_count+".option_"+option_count;
+  var current_li=$(current_option.parentNode);
+  var next_li=$(next_option.parentNode);
+  if(direction==0)current_li.insertBefore(next_li);
+  else next_li.insertBefore(current_li);
+}
+
+function delete_option_prime(obj){
+  var option=obj.parentNode.previousSibling.previousSibling;
+  var li=option.parentNode;
+  var ul=li.parentNode;
+  var ques_count=option.id.split('_')[1].split('.')[0];
+  var option_count=option.id.split('_')[2];
+  ul.removeChild(li);
+
+  option_count++;
+  var current_option=document.getElementById("ques_"+ques_count+".option_"+option_count);
+  while(current_option!=null){
+    current_option.id="ques_"+ques_count+".option_"+(option_count-1);
+    current_option.name="ques_"+ques_count+".option_"+(option_count-1);
+    option_count++;
+    current_option=document.getElementById("ques_"+ques_count+".option_"+option_count);
+  }
+}
+
+function add_option_prime(obj,type){
+  var count=obj.parentNode.parentNode.parentNode.id.split('_')[1].split('.')[0];
+  var ul=obj.parentNode.parentNode.nextSibling.nextSibling;
+  var ocount = 0;
+  var radio;
+  if(type == 0)radio="radio";
+  else radio="checkbox";
+  while(document.getElementById("ques_"+count+".option_"+ocount)!=null)ocount++;
+
+  console.log(count)
+
+  var li=document.createElement("li");
+  li.setAttribute("onmouseover","show_buttons(this,1)");
+  li.setAttribute("onmouseout","hide_buttons(this,1)");
+
+  li.setAttribute("class","row");
+  li.innerHTML="<input class=\"col-md-7 form-control\" type=\"text\" id=\"ques_"+
+    count+".option_"+ocount+"\" name=\"ques_"+count+".option_"+ocount+"\" placeholder=\"new option\" required/>"+
+    "<div style=\"display:none\" class=\"col-md-5 option_button\">"+
+
+    "<span class=\"btn glyphicon glyphicon-arrow-up\" onclick=\"move_option(this,0)\"></span>"+
+    "<span class=\"btn glyphicon glyphicon-arrow-down\" onclick=\"move_option(this,1)\"></span>"+
+    "<span class=\"btn glyphicon glyphicon-trash\" onclick=\"delete_option(this)\"></span></div>";
+  ul.appendChild(li);
+  document.getElementById("ques_"+count+".option_"+ocount).focus();
 }

@@ -20,43 +20,47 @@
                     <div class="row">
                         <label class="form-label" id="ques_{{i}}.description">{{i+1}}.&nbsp;{{renderQuestions[i].question.description}}</label>
                     </div>
-                    
+                    <div class="form-group">
                     {% if renderQuestions[i].question.type == 0 %}
                         {% for j in range(0, renderQuestions[i].options|length) %}
-                            <div class="custom-control custom-radio mt-2">
-                                <input class="custom-control-input" type="radio" value="{{j}}" disabled="disabled"/>
+                            <div class="custom-control custom-radio">
+                                <input name="ques_{{i}}" id="ques_{{i}}-option_{{j}}" class="custom-control-input" type="radio" value="{{j}}" />
                                 <label class="custom-control-label">{{ renderQuestions[i].options[j].description}}</label>
                             </div>
                         {% endfor %}
                     {% elif renderQuestions[i].question.type == 1 %}
                         {% for j in range(0, renderQuestions[i].options|length) %}
                             <div class="custom-control custom-checkbox">
-                                <input class="custom-control-input" type="checkbox" value="{{j}}" disabled="disabled"/>
+                                <input class="custom-control-input" type="checkbox" value="{{j}}" />
                                 <label class="custom-control-label">{{ renderQuestions[i].options[j].description}}</label>
                             </div>
                         {% endfor %}
                     {% elif renderQuestions[i].question.type == 2 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <textarea rows="8" class="form-control mb-2" name="ques_{{i}}.ans" disabled="disabled"></textarea>
+                                <textarea rows="8" class="form-control mb-2" name="ques_{{i}}.ans" ></textarea>
                             </div>
                         </div>
                     {% elif  renderQuestions[i].question.type == 3 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <input type="number" value="{{j}}" disabled="disabled"/>
+                                <input type="number" value="{{j}}" />
                             </div>
                         </div>
 
                     {% elif  renderQuestions[i].question.type == 4 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <input type="number" value="{{j}}" disabled="disabled"/>
+                                <input type="number" value="{{j}}" />
                             </div>
                         </div>
                     {% endif %}
                 </div>
+                </div>
                 {% endfor %}
+            </div>
+            <div class="from-group">
+                <button class="btn btn-primary" type="submit">提交</button>
             </div>
         </form>
 

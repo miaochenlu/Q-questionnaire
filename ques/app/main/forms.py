@@ -1,5 +1,6 @@
+from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
+from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField, DateTimeField, RadioField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, Regexp
 from wtforms import ValidationError
 from flask_pagedown.fields import PageDownField
@@ -52,3 +53,16 @@ class CreateQuestionaireForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(1, 20)])
     description = TextAreaField('Description')
     submit = SubmitField('Create')
+
+class QuestionaireReleaseForm(FlaskForm):
+    start_time = DateTimeField("开始时间",
+                          format="%Y-%m-%d %H:%M:%S", 
+                          default=datetime.now(),
+                          validators=[DataRequired()])
+    end_time = DateTimeField("结束时间",
+                          format="%Y-%m-%d %H:%M:%S", 
+                          default=datetime.now(),
+                          validators=[DataRequired()])
+    mode = RadioField("填写模式", choices=[(0, "仅注册用户可填写"), (1, "无需注册, 可填写限定次"), (2, "无需注册, 每天可填写限定次")])
+    times = IntegerField('填写次数', validators=[DataRequired()])
+    submit = SubmitField('发布')

@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 from . import main
 from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm, CreateQuestionaireForm
 from .. import db
-from ..models import User, Role, Post, Permission, Questionaire, Question, Option
+from ..models import User, Role, Post, Permission, Questionaire, Question, Option, QuestionaireRelease
 from ..decorators import admin_required
 
 @main.route('/', methods=['GET', 'POST'])
@@ -197,8 +197,8 @@ def create_question(id):
     renderQuestions = get_question_dict(questionaire)
     length = len(renderQuestions)
     if request.method == 'POST':
-        questionaire.title = request.form["questionaire_title"]
-        questionaire.description = request.form["questionaire_description"]
+        questionaire.title = request.form["questionaire_title"].replace("'", "\'").replace('"', '\"')
+        questionaire.description = request.form["questionaire_description"].replace("'", "\'").replace('"', '\"')
         db.session.add(questionaire)
         db.session.commit()
         question_delete(questionaire)
@@ -217,4 +217,50 @@ def questionaire(id):
     length = len(renderQuestions)
 
     return render_template('questionaire.html', questionaire=questionaire, 
+                            renderQuestions=renderQuestions, length=length)
+
+
+@main.route('/questionaire/<int:id>/release', methods=["GET", "POST"])
+@login_required
+def release_questionaire(id):
+    questionaire = Questionaire.query.get_or_404(id)
+    release = QuestionaireRelease.query.filter_by(questionaire_id=id).first()
+    if(release):
+        flash("你的问卷已经发布过了")
+        return redirect(url_for('main.questionaire', id=id))
+    if current_user != questionaire.author:
+        abort(403)
+    if request.method == "POST":
+        times = 0
+        mode = 0
+        if request.form["mode"] == "0":
+            mode = 0
+        elif request.form["mode"] == "1" :
+            mode = 1
+            times = request.form["times"]
+        elif request.form["mode"] == "2":
+            mode = 2
+            times = request.form["times"]
+        
+        start_obj = datetime.strptime(request.form["start_time"], '%Y-%m-%dT%H:%M')
+        finish_obj = datetime.strptime(request.form["finish_time"], '%Y-%m-%dT%H:%M')
+        release = QuestionaireRelease (
+            start_time = start_obj,
+            finish_time = finish_obj,
+            mode = mode,
+            times = times,
+            status = 1,
+            questionaire = questionaire,
+        )
+        flash("你的问卷发布成功")
+        return redirect(url_for('main.questionaire', id=id))
+    return render_template('questionaire_release.html')
+
+@main.route('/questionaire/<int:id>/answer', methods=["GET", "POST"])
+def answer_questionaire(id):
+    questionaire = Questionaire.query.get_or_404(id)
+    renderQuestions = get_question_dict(questionaire)
+    length = len(renderQuestions)
+
+    return render_template('ans_questionaire.html', questionaire=questionaire, 
                             renderQuestions=renderQuestions, length=length)

@@ -320,3 +320,8 @@ body a {
 body a:hover {
   color: #ffffff;
 }*/
+
+
+div#radio0 div#radio1 div#radio2{
+    margin-left: 100px;
+}
