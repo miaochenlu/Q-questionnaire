@@ -1,11 +1,12 @@
 from datetime import datetime
 from flask import render_template, session, redirect, url_for, flash, request, current_app, g
 from flask import abort
+from flask import Markup
 from flask_login import current_user, login_required
 from . import main
 from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm, CreateQuestionaireForm
 from .. import db
-from ..models import User, Role, Post, Permission, Questionaire, Question, Option, Score, QuestionaireRelease, QuestionaireAnswer, QuestionAnswer
+from ..models import User, Role, Post, Permission, Questionaire, Question, Option, Score, RowControl, NumberControl,QuestionaireRelease, QuestionaireAnswer, QuestionAnswer
 from ..decorators import admin_required
 
 @main.route('/', methods=['GET', 'POST'])
@@ -112,7 +113,6 @@ def get_question_dict(questionaire):
         q = {
                     "question" : question,
                     "options" : question.options.all(),
-                    "score" : question.score
         }
         renderQuestions.append(q)
     return renderQuestions
@@ -146,6 +146,12 @@ def question_delete(questionaire):
         options = question.options.all()
         for option in options:
             db.session.delete(option)
+        if question.score is not None:
+            db.session.delete(question.score)
+        if question.number_control is not None:
+            db.session.delete(question.number_control)
+        if question.row_control is not None:
+            db.session.delete(question.row_control)
         db.session.delete(question)
     db.session.commit()
 
@@ -169,6 +175,9 @@ def create_question(id):
 
                 get_options(question_form, add_db_question.id)
                 get_set_score(question_form, add_db_question.id)
+                get_set_number(question_form, add_db_question.id)
+                get_set_row(question_form, add_db_question.id)
+                db.session.commit()
                 question_count += 1
             else:
                 break
@@ -204,12 +213,39 @@ def create_question(id):
             db.session.add(score)
             db.session.commit()
 
+    def get_set_number(question_form, question_id):
+        question = Question.query.get_or_404(question_id)
+        minnumber = question_form + '.minnumber'
+        maxnumber = question_form + '.maxnumber'
+        number_type = question_form + '.intordeci'
+        if minnumber in request.form and maxnumber in request.form and number_type in request.form:
+            num_ctr = NumberControl(
+                min = request.form[minnumber] if request.form[minnumber] < request.form[maxnumber] else request.form[maxnumber],
+                max = request.form[minnumber] if request.form[minnumber] > request.form[maxnumber] else request.form[maxnumber],
+                number_type = False if request.form[number_type] == "0" else True,
+                question = question
+            )
+            db.session.add(num_ctr)
+            db.session.commit()
+    
+    def get_set_row(question_form, question_id):
+        question = Question.query.get_or_404(question_id)
+        row_type = question_form + '.row'
+        if row_type in request.form:
+            row_ctr = RowControl(
+                row_type = False if request.form[row_type] == "0" else True,
+                question = question
+            )
+            db.session.add(row_ctr)
+            db.session.commit()
+
+
     questionaire = Questionaire.query.get_or_404(id)
     if current_user != questionaire.author:
         abort(403)
     releases = QuestionaireRelease.query.filter_by(questionaire_id=id).all()
     if len(releases) > 0:
-        flash("对不起，该问卷已经发布, 不能修改。请新建问卷")
+        flash(Markup('对不起，该问卷已经发布, 不能修改。请<a href=\"/questionaire/create\">新建问卷</a>'))
         return render_template('warning.html')
 
     renderQuestions = get_question_dict(questionaire)
@@ -315,7 +351,7 @@ def answer_questionaire(id):
             # questionaire = questionaire
         )
         db.session.add(questionaire_answer)
-        # db.session.commit()
+        db.session.commit()
 
         for i in range(length):
             if renderQuestions[i]["question"].type in [0, 2, 3, 4]:
@@ -328,7 +364,7 @@ def answer_questionaire(id):
                 else :
                     qans = QuestionAnswer (
                         questionaire_answer_id = questionaire.id,
-                        question_id = i,
+                        question_id = renderQuestions[i]["question"].id,
                         answer = request.form['ques_' + str(i) + '_ans'],
                     )
                     db.session.add(qans)
@@ -338,7 +374,7 @@ def answer_questionaire(id):
                         if ('ques_' + str(i) + '_ans' + str(j)) in request.form:
                             qans = QuestionAnswer (
                                 questionaire_answer_id = questionaire.id,
-                                question_id = i,
+                                question_id = renderQuestions[i]["question"].id,
                                 answer = request.form['ques_' + str(i) + '_ans' + str(j)],
                             )
                             ans_count += 1
@@ -356,7 +392,71 @@ def answer_questionaire(id):
     return render_template('ans_questionaire.html', questionaire=questionaire, 
                             renderQuestions=renderQuestions, length=length)
 
+
+
+def get_ans(question):
+    ans = {}
+    question_answers = question.questionanswers.all()
+    if question.type == 0 or question.type == 1: #单选题
+        for i in range(len(question.options.all())):
+            pans = {
+                str(i): 0
+            }
+            ans.update(pans)
+        for q_answer in question_answers:
+            ans[q_answer.answer] += 1
+    elif question.type == 4:
+        for i in range(question.score.radio_num):
+            pans = {
+                str(i): 0
+            }
+            ans.update(pans)
+        for q_answer in question_answers:
+            ans[q_answer.answer] += 1
+    else:
+        for q_answer in question_answers:
+            pans = {
+                q_answer.answer: 1
+            }
+            ans.update(pans)
+    return ans
+
+
+
+
+def get_tot_info(questionaire, release):
+    questionaire_name = questionaire.title
+    questionaire_description = questionaire.description
+    questions = questionaire.questions.all()
+    # options = 
+    renderQuestions = []
+    for question in questions:
+        q = {
+                    "question" : question,
+                    "options" : question.options.all(),
+                    "score" : question.score,
+                    "answers": get_ans(question)
+        }
+        renderQuestions.append(q)
+    return renderQuestions
+
+########################################test#########################
+
+
 @main.route('/questionaire/<int:id>/analyse', methods=["GET", "POST"])
 @login_required
 def analyse_questionaire(id):
-    return render_template("analyse_questionaire.html")
+    questionaire = Questionaire.query.get_or_404(id)
+    releases = QuestionaireRelease.query.filter_by(questionaire_id=id).all()
+    if len(releases) == 0:
+        flash("对不起，该问卷尚未发布，无统计结果")
+        return render_template("warning.html")
+
+    release = releases[-1]
+    renderQuestions = get_tot_info(questionaire, release)
+    length = len(renderQuestions)
+
+
+
+    return render_template("test.html", questionaire=questionaire, renderQuestions=renderQuestions, length=length)
+

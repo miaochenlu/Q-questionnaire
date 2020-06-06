@@ -195,12 +195,28 @@ class Question(db.Model):
     questionaire_id = db.Column(db.Integer, db.ForeignKey('questionaires.id'))
     options = db.relationship('Option', backref="question", lazy="dynamic")
     score = db.relationship('Score', backref="question", uselist=False)
+    number_control = db.relationship('NumberControl', backref="question", uselist=False)
+    row_control = db.relationship('RowControl', backref="question", uselist=False)
     questionanswers = db.relationship("QuestionAnswer", backref='question', lazy='dynamic')
 
 class Option(db.Model):
     __tablename__ = "options"
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(64))
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+
+class RowControl(db.Model):
+    __tablename__ = "rowcontrols"
+    id = db.Column(db.Integer, primary_key=True)
+    row_type = db.Column(db.Boolean) # 0 for one row 1 for multiple row
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+
+class NumberControl(db.Model):
+    __tablename__ = "numbercontrols"
+    id = db.Column(db.Integer, primary_key=True)
+    number_type = db.Column(db.Boolean) # 0 for one row 1 for multiple row
+    min = db.Column(db.String(20))
+    max = db.Column(db.String(20))
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
 class Score(db.Model):

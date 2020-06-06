@@ -14,7 +14,7 @@
 
     <div class>
         <form method="POST">
-            <div id="ques_list">
+            <div id="question_list">
                 {% for i in range(0, length) %}
                 <div id="ques_{{i}}.div" class="form-group row well">
                     <div class="row">
@@ -38,26 +38,34 @@
                     {% elif renderQuestions[i].question.type == 2 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <textarea name="ques_{{i}}_ans" rows="8" class="form-control mb-2" name="ques_{{i}}.ans" ></textarea>
+                                {% if renderQuestions[i].question.row_control.row_type %}
+                                    <textarea rows="8" class="form-control mb-2" name="ques_{{i}}.ans"></textarea>
+                                {% else %}
+                                    <input class="form-control mb-2" name="ques_{{i}}.ans"/>
+                                {% endif %}
                             </div>
                         </div>
                     {% elif  renderQuestions[i].question.type == 3 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <input name="ques_{{i}}_ans" type="number" value="{{j}}" />
+                                {% if renderQuestions[i].question.number_control.number_type %}
+                                    <input type="number" value="{{j}}" step="1" min={{renderQuestions[i].question.number_control.min}}, max={{renderQuestions[i].question.number_control.max}}/>
+                                {% else %}
+                                    <input type="number" value="{{j}}" step=0.01  min={{renderQuestions[i].question.number_control.min}}, max={{renderQuestions[i].question.number_control.max}}/>
+                                {% endif %}
                             </div>
                         </div>
 
                     {% elif  renderQuestions[i].question.type == 4 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].score.left_text }}</label>
-                                {% for s in range(renderQuestions[i].score.radio_num) %}
+                                <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].question.score.left_text }}</label>
+                                {% for s in range(renderQuestions[i].question.score.radio_num) %}
                                     
                                 <input name="ques_{{i}}_ans" type="radio" value="{{s}}">
                                 <label style="vertical-align:middle;padding-left:6px;">{{s}}</label>
                                 {% endfor %}
-                                <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].score.right_text}}</label>
+                                <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].question.score.right_text}}</label>
                             </div>
                         </div>
                     {% endif %}

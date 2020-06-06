@@ -98,7 +98,7 @@
       </div>
     </div>
 
-    <div id="ques_list">
+    <div id="question_list">
         <input id="ques.id" name="ques.id" type="hidden" value="id"/>
         {% for i in range(0, length) %}
       
