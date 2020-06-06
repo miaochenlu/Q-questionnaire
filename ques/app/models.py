@@ -123,6 +123,8 @@ class User(UserMixin, db.Model):
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
     
+    def is_anonymous(self):
+        return False
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -154,6 +156,9 @@ class AnonymousUser(AnonymousUserMixin):
     
     def is_administrator(self):
         return False
+
+    def is_anonymous(self):
+        return True
 
 class Post(db.Model):
     __tablename__ = "posts"
@@ -189,12 +194,21 @@ class Question(db.Model):
     must_do = db.Column(db.Boolean)
     questionaire_id = db.Column(db.Integer, db.ForeignKey('questionaires.id'))
     options = db.relationship('Option', backref="question", lazy="dynamic")
+    score = db.relationship('Score', backref="question", uselist=False)
     questionanswers = db.relationship("QuestionAnswer", backref='question', lazy='dynamic')
 
 class Option(db.Model):
     __tablename__ = "options"
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(64))
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+
+class Score(db.Model):
+    __tablename__ = "scores"
+    id = db.Column(db.Integer, primary_key=True)
+    left_text = db.Column(db.String(64))
+    right_text = db.Column(db.String(64))
+    radio_num = db.Column(db.Integer)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
 

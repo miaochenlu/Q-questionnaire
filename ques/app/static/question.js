@@ -154,6 +154,15 @@ function create_question(type){
       "<span class = \"btn glyphicon glyphicon-arrow-down\" onclick = \"move_option(this,1)\"></span>" + 
       "<span class = \"btn glyphicon glyphicon-trash\" onclick = \"delete_option(this)\"></span></div></li>";
     }
+
+    if(type == 4) {
+      new_option_ul.innerHTML = "<li class = \"row\" >"+
+      " <input class = \"col-md-7 form-control\" type = \"text\" id = \"ques_" + count + ".lefttext\" name= \"ques_" + count + ".lefttext\" placeholder = \"左端描述文字\" required/> </li>"
+      + "<li class = \"row\" >"
+      + "<input class = \"col-md-7 form-control\" type = \"text\" id = \"ques_" + count + ".righttext\" name= \"ques_" + count + ".righttext\" placeholder = \"右端描述文字\" required/> </li>"
+      + "<li class = \"row\" >"
+      + "<input style=\"width: 120px;\" class = \"col-md-7 form-control\" type = \"number\" id = \"ques_" + count + ".number\" name= \"ques_" + count + ".number\"  min=\"3\" max=\"10\" placeholder = \"量表级数\" required/> </li>"
+    }
   
     base_div.appendChild(new_question_div);
     new_question_description.focus();
@@ -198,7 +207,17 @@ function delete_question(obj){
           current_option=document.getElementById("ques_"+count+".option_"+option_count);
         }
       }
-  
+      if(type == 4) {
+        var lefttext = document.getElementById("ques_" + count + ".lefttext");
+        var righttext = document.getElementById("ques_" + count + ".righttext");
+        var number = document.getElementById("ques_" + count + ".number");
+        lefttext.id = "ques_" + (count - 1) + ".lefttext";
+        lefttext.name = "ques_" + (count - 1) + ".lefttext";
+        righttext.id = "ques_" + (count - 1) + ".righttext";
+        righttext.name = "ques_" + (count - 1) + ".righttext";
+        number.id = "ques_" + (count - 1) + ".number";
+        number.name = "ques_" + (count - 1) + ".number";
+      }
       count++;
       current_question=document.getElementById("ques_"+count+".div");
     }
@@ -281,44 +300,118 @@ function delete_question(obj){
     var option_count=0;
     var current_option=document.getElementById("ques_"+count+".option_"+option_count);
     var next_option=document.getElementById("ques_"+next_count+".option_"+option_count);
-    if(current_type<2){
-      if(next_type<2){
-        while(current_option!=null&&next_option!=null){
-          current_option.id="ques_"+next_count+".option_"+option_count;
-          current_option.name="ques_"+next_count+".option_"+option_count;
-          next_option.id="ques_"+count+".option_"+option_count;
-          next_option.name="ques_"+count+".option_"+option_count;
-          option_count++;
-          current_option=document.getElementById("ques_"+count+".option_"+option_count);
-          next_option=document.getElementById("ques_"+next_count+".option_"+option_count);
-        }
-        while(current_option!=null){
-          current_option.id="ques_"+next_count+".option_"+option_count;
-          current_option.name="ques_"+next_count+".option_"+option_count;
-          option_count++;
-          current_option=document.getElementById("ques_"+count+".option_"+option_count);
-        }
-        while(next_option!=null){
-          next_option.id="ques_"+count+".option_"+option_count;
-          next_option.name="ques_"+count+".option_"+option_count;
-          option_count++;
-          next_option=document.getElementById("ques_"+next_count+".option_"+option_count);
-        }
+
+    var current_score_lefttext = document.getElementById("ques_"+count+".lefttext");
+    var current_score_righttext = document.getElementById("ques_"+count+".righttext");
+    var current_score_number = document.getElementById("ques_"+count+".number");
+
+    var next_score_lefttext = document.getElementById("ques_"+next_count+".lefttext");
+    var next_score_righttext = document.getElementById("ques_"+next_count+".righttext");
+    var next_score_number = document.getElementById("ques_"+next_count+".number");
+
+    if(current_type == 4) {
+      if(next_type == 4) {
+        current_score_lefttext.id = "ques_" + next_count + ".lefttext";
+        current_score_lefttext.name = "ques_" + next_count + ".lefttext";
+        next_score_lefttext.id = "ques_" + count + ".lefttext";
+        next_score_lefttext.name = "ques_" + count + ".lefttext";
+
+        current_score_righttext.id = "ques_" + next_count + ".righttext";
+        current_score_righttext.name = "ques_" + next_count + ".righttext";
+        next_score_righttext.id = "ques_" + count + ".righttext";
+        next_score_righttext.name = "ques_" + count + ".righttext";
+
+        current_score_number.id = "ques_" + next_count + ".number";
+        current_score_number.name = "ques_" + next_count + ".number";
+        next_score_number.id = "ques_" + count + ".number";
+        next_score_number.name = "ques_" + count + ".number";
       }
-      else while(current_option!=null){
-          current_option.id="ques_"+next_count+".option_"+option_count;
-          current_option.name="ques_"+next_count+".option_"+option_count;
-          option_count++;
-          current_option=document.getElementById("ques_"+count+".option_"+option_count);
-        }   
-    }
-    else if(next_type<2){
-      while(next_option!=null){
-          next_option.id="ques_"+count+".option_"+option_count;
-          next_option.name="ques_"+count+".option_"+option_count;
-          option_count++;
-          next_option=document.getElementById("ques_"+next_count+".option_"+option_count);
+      else if(next_type<2){
+        current_score_lefttext.id = "ques_" + next_count + ".lefttext";
+        current_score_lefttext.name = "ques_" + next_count + ".lefttext";
+
+        current_score_righttext.id = "ques_" + next_count + ".righttext";
+        current_score_righttext.name = "ques_" + next_count + ".righttext";
+
+        current_score_number.id = "ques_" + next_count + ".number";
+        current_score_number.name = "ques_" + next_count + ".number";
+
+        while(next_option!=null){
+            next_option.id="ques_"+count+".option_"+option_count;
+            next_option.name="ques_"+count+".option_"+option_count;
+            option_count++;
+            next_option=document.getElementById("ques_"+next_count+".option_"+option_count);
         }
+      } 
+      else {
+        current_score_lefttext.id = "ques_" + next_count + ".lefttext";
+        current_score_lefttext.name = "ques_" + next_count + ".lefttext";
+
+        current_score_righttext.id = "ques_" + next_count + ".righttext";
+        current_score_righttext.name = "ques_" + next_count + ".righttext";
+
+        current_score_number.id = "ques_" + next_count + ".number";
+        current_score_number.name = "ques_" + next_count + ".number";
+
+      }
+    }
+    
+    else if(current_type < 2){
+        if(next_type < 2){
+            while(current_option != null && next_option != null){
+              current_option.id="ques_"+next_count+".option_"+option_count;
+              current_option.name="ques_"+next_count+".option_"+option_count;
+              next_option.id="ques_"+count+".option_"+option_count;
+              next_option.name="ques_"+count+".option_"+option_count;
+              option_count++;
+              current_option=document.getElementById("ques_"+count+".option_"+option_count);
+              next_option=document.getElementById("ques_"+next_count+".option_"+option_count);
+            }
+            while(current_option!=null){
+              current_option.id="ques_"+next_count+".option_"+option_count;
+              current_option.name="ques_"+next_count+".option_"+option_count;
+              option_count++;
+              current_option=document.getElementById("ques_"+count+".option_"+option_count);
+            }
+            while(next_option!=null){
+              next_option.id="ques_"+count+".option_"+option_count;
+              next_option.name="ques_"+count+".option_"+option_count;
+              option_count++;
+              next_option=document.getElementById("ques_"+next_count+".option_"+option_count);
+            }
+        }
+        else {
+          while(current_option!=null){
+            current_option.id="ques_"+next_count+".option_"+option_count;
+            current_option.name="ques_"+next_count+".option_"+option_count;
+            option_count++;
+            current_option=document.getElementById("ques_"+count+".option_"+option_count);
+          }  
+          if(next_type == 4) {
+            next_score_lefttext.id = "ques_" + count + ".lefttext";
+            next_score_lefttext.name = "ques_" + count + ".lefttext";
+            next_score_righttext.id = "ques_" + count + ".righttext";
+            next_score_righttext.name = "ques_" + count + ".righttext";
+            next_score_number.id = "ques_" + count + ".number";
+            next_score_number.name = "ques_" + count + ".number";
+          }
+        } 
+    }
+    else if(next_type < 2){
+        while(next_option!=null){
+            next_option.id="ques_"+count+".option_"+option_count;
+            next_option.name="ques_"+count+".option_"+option_count;
+            option_count++;
+            next_option=document.getElementById("ques_"+next_count+".option_"+option_count);
+        }
+    } 
+    else if(next_type == 4) {
+        next_score_lefttext.id = "ques_" + count + ".lefttext";
+        next_score_lefttext.name = "ques_" + count + ".lefttext";
+        next_score_righttext.id = "ques_" + count + ".righttext";
+        next_score_righttext.name = "ques_" + count + ".righttext";
+        next_score_number.id = "ques_" + count + ".number";
+        next_score_number.name = "ques_" + count + ".number";
     }
     if(direction==0)$(current_question_div).insertBefore($(next_question_div));
     else $(next_question_div).insertBefore($(current_question_div));

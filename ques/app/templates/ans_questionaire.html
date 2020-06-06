@@ -24,34 +24,40 @@
                     {% if renderQuestions[i].question.type == 0 %}
                         {% for j in range(0, renderQuestions[i].options|length) %}
                             <div class="custom-control custom-radio">
-                                <input name="ques_{{i}}" id="ques_{{i}}-option_{{j}}" class="custom-control-input" type="radio" value="{{j}}" />
+                                <input name="ques_{{i}}_ans" id="ques_{{i}}-option_{{j}}" class="custom-control-input" type="radio" value="{{j}}" />
                                 <label class="custom-control-label">{{ renderQuestions[i].options[j].description}}</label>
                             </div>
                         {% endfor %}
                     {% elif renderQuestions[i].question.type == 1 %}
                         {% for j in range(0, renderQuestions[i].options|length) %}
                             <div class="custom-control custom-checkbox">
-                                <input class="custom-control-input" type="checkbox" value="{{j}}" />
+                                <input name="ques_{{i}}_ans{{j}}" id="ques_{{i}}_ans{{j}}" class="custom-control-input" type="checkbox" value="{{j}}" />
                                 <label class="custom-control-label">{{ renderQuestions[i].options[j].description}}</label>
                             </div>
                         {% endfor %}
                     {% elif renderQuestions[i].question.type == 2 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <textarea rows="8" class="form-control mb-2" name="ques_{{i}}.ans" ></textarea>
+                                <textarea name="ques_{{i}}_ans" rows="8" class="form-control mb-2" name="ques_{{i}}.ans" ></textarea>
                             </div>
                         </div>
                     {% elif  renderQuestions[i].question.type == 3 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <input type="number" value="{{j}}" />
+                                <input name="ques_{{i}}_ans" type="number" value="{{j}}" />
                             </div>
                         </div>
 
                     {% elif  renderQuestions[i].question.type == 4 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <input type="number" value="{{j}}" />
+                                <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].score.left_text }}</label>
+                                {% for s in range(renderQuestions[i].score.radio_num) %}
+                                    
+                                <input name="ques_{{i}}_ans" type="radio" value="{{s}}">
+                                <label style="vertical-align:middle;padding-left:6px;">{{s}}</label>
+                                {% endfor %}
+                                <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].score.right_text}}</label>
                             </div>
                         </div>
                     {% endif %}

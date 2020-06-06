@@ -85,6 +85,19 @@
                   </li>
                   {% endfor %}
                 </ul>
+
+              {% elif renderQuestions[i].question.type == 4 %}
+              <ul class="form-inline" style="list-style-type:none">
+                <li class = "row" > 
+                  <input class = "col-md-7 form-control" type = "text" id = "ques_{{i}}.lefttext" name= "ques_{{i}}.lefttext" value="{{renderQuestions[i].score.left_text}}" required/>
+                </li>
+                <li class = "row" > 
+                  <input class = "col-md-7 form-control" type = "text" id = "ques_{{i}}.righttext" name= "ques_{{i}}.righttext" value="{{renderQuestions[i].score.right_text}}" required/>
+                </li>
+                <li class = "row" > 
+                  <input style="width: 120px;" class = "col-md-7 form-control" type = "number" id = "ques_{{i}}.number" name= "ques_{{i}}.number"  value="{{renderQuestions[i].score.radio_num}}" min="3" max="10" required/> 
+                </li>
+              </ul>
               {% endif %}
             </div>
         {% endfor %}

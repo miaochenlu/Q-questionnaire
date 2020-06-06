@@ -9,11 +9,17 @@
         <div class="questionaire-body">
             <div class="questionaire-footer">
                 <a href="{{url_for('main.questionaire', id=questionaire.id)}}">
-                    <span class="label label-default">预览</span>
+                    <span class="label label-primary">预览</span>
                 </a>
                 {% if current_user == questionaire.author %}
                     <a href="{{ url_for('main.create_question', id=questionaire.id) }}">
-                        <span class="label label-primary">修改问题</span>
+                        <span class="label label-success">修改问题</span>
+                    </a>
+                    <a href="{{ url_for('main.release_questionaire', id=questionaire.id) }}">
+                        <span class="label label-danger">发布问卷</span>
+                    </a>
+                    <a href="{{ url_for('main.analyse_questionaire', id=questionaire.id) }}">
+                        <span class="label label-info">统计结果</span>
                     </a>
                 {% endif %}
             </div>

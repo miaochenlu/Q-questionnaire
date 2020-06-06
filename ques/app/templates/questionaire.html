@@ -51,7 +51,13 @@
                     {% elif  renderQuestions[i].question.type == 4 %}
                         <div class="row">
                             <div class="col-md-6">
-                                <input type="number" value="{{j}}" disabled="disabled"/>
+                                <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].score.left_text }}</label>
+                                {% for s in range(renderQuestions[i].score.radio_num) %}
+                                    
+                                <input type="radio" value="{{s}}" disabled="disabled">
+                                <label style="vertical-align:middle;padding-left:6px;">{{s}}</label>
+                                {% endfor %}
+                                <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].score.right_text}}</label>
                             </div>
                         </div>
                     {% endif %}
