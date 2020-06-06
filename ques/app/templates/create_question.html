@@ -38,15 +38,15 @@
           <div id="ques_{{i}}.div" class="form-group row well" onmouseover="show_buttons(this,0)" onmouseout="hide_buttons(this,0)">
               <div style="font-size:13px; margin-left:5px;margin-top:-10px;margin-bottom:10px;">
                 {% if renderQuestions[i].question.type==0 %}
-                  <b>问题{{i+1}}: 单选题</b>
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 单选题</b>
                 {% elif renderQuestions[i].question.type==1 %}
-                  <b>问题{{i+1}}: 多选题</b>
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 多选题</b>
                 {% elif renderQuestions[i].question.type==2 %}
-                  <b>问题{{i+1}}: 文字题 </b>
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 文字题 </b>
                 {% elif renderQuestions[i].question.type==3 %}
-                   <b>问题{{i+1}}: 数字题 </b>
+                   <b id="ques_{{i}}.info">问题{{i+1}}: 数字题 </b>
                 {% elif renderQuestions[i].question.type==4 %}
-                  <b>问题{{i+1}}: 评分题 </b>
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 评分题 </b>
                 {% endif %}
               </div>
               

@@ -24,6 +24,7 @@ function create_question(type){
               else if(type == 2) b.innerHTML = "问题" + (ques_count+1) + ": 文字题";
               else if(type == 3) b.innerHTML = "问题" + (ques_count+1) + ": 数字题"
               else b.innerHTML = "问题" + (ques_count+1) + ": 评分题";
+              b.id = "ques_" + ques_count + ".info";
           info_div.appendChild(b);
       new_question_div.appendChild(info_div);
   // must do
@@ -178,6 +179,7 @@ function delete_question(obj){
       question_div.id="ques_"+(count-1)+".div";
       question_div.name="ques_"+(count-1)+".div";
       
+
       var must_do = document.getElementById("ques_"+count+".must_do");
       var option_do = document.getElementById("ques_"+count+".option_do");
       must_do.id = "ques_" + (count - 1) + ".must_do";
@@ -195,7 +197,14 @@ function delete_question(obj){
       question_description.id="ques_"+(count-1)+".description";
       question_description.name="ques_"+(count-1)+".description";
   
-  
+      var info = document.getElementById("ques_" + count + ".info");
+      info.id = "ques_" + (count-1) + ".info";
+      if(type == 0) info.innerHTML = "问题" + (count) + ": 单选题";
+      else if(type == 1) info.innerHTML = "问题" + (count) + ": 多选题";
+      else if(type == 2) info.innerHTML = "问题" + (count) + ": 文字题";
+      else if(type == 3) info.innerHTML = "问题" + (count) + ": 数字题"
+      else info.innerHTML = "问题" + (count) + ": 评分题";
+
       if(type < 2){
         var option_count = 0;
         var current_option=document.getElementById("ques_" + count + ".option_" + option_count);
@@ -232,7 +241,7 @@ function delete_question(obj){
         integer.id = "ques_" + (count - 1) + ".integer";
         integer.name = "ques_" + (count - 1) + ".intordeci";
         decimal.id = "ques_" + (count - 1) + ".decimal";
-        decimal.name = "ques_" + (count - 1) + ".decimal";
+        decimal.name = "ques_" + (count - 1) + ".intordeci";
         min.id = "ques_" + (count - 1) + ".minnumber";
         min.name = "ques_" + (count - 1) + ".minnumber";
         max.id = "ques_" + (count - 1) + ".maxnumber";
@@ -256,7 +265,9 @@ function delete_question(obj){
   }
   
   function move_question(obj,direction){
-    var count=obj.parentNode.parentNode.parentNode.id.split('_')[1].split('.')[0];
+    var count = obj.parentNode.parentNode.parentNode.id.split('_')[1].split('.')[0];
+    count++;
+    count--;
     var next_count = count;
     if(direction == 1) next_count++;
     else next_count--;
@@ -280,6 +291,23 @@ function delete_question(obj){
   
     var current_type = current_question_type.value;
     var next_type = next_question_type.value;
+
+    var current_info = document.getElementById("ques_" + count + ".info");
+    var next_info = document.getElementById("ques_" + next_count + ".info");
+      current_info.id = "ques_" + next_count + ".info";
+      if(current_type == 0) current_info.innerHTML = "问题" + (next_count + 1) + ": 单选题";
+      else if(current_type == 1) current_info.innerHTML = "问题" + (next_count + 1) + ": 多选题";
+      else if(current_type == 2) current_info.innerHTML = "问题" + (next_count + 1) + ": 文字题";
+      else if(current_type == 3) current_info.innerHTML = "问题" + (next_count + 1) + ": 数字题"
+      else current_info.innerHTML = "问题" + (next_count + 1) + ": 评分题";
+
+      next_info.id = "ques_" + count + ".info";
+      if(next_type == 0) next_info.innerHTML = "问题" + (count + 1) + ": 单选题";
+      else if(next_type == 1) next_info.innerHTML = "问题" + (count + 1) + ": 多选题";
+      else if(next_type == 2) next_info.innerHTML = "问题" + (count + 1) + ": 文字题";
+      else if(next_type == 3) next_info.innerHTML = "问题" + (count + 1) + ": 数字题"
+      else next_info.innerHTML = "问题" + (count + 1) + ": 评分题";
+
 
         var current_must_do = document.getElementById("ques_"+count+".must_do");
         var current_option_do = document.getElementById("ques_"+count+".option_do");
@@ -493,12 +521,12 @@ function delete_question(obj){
         next_multi_row.id = "ques_" + count + ".multi_row";
         next_multi_row.name = "ques_" + count + ".row";
 
-        // if(next_one_row_check) {
-        //   next_one_row.checked = next_one_row_check;
-        // }
-        // if(next_multi_row_check) {
-        //   next_multi_row.checked = next_multi_row_check;
-        // }
+        if(next_one_row_check) {
+          next_one_row.checked = next_one_row_check;
+        }
+        if(next_multi_row_check) {
+          next_multi_row.checked = next_multi_row_check;
+        }
 
     }
     if(next_type == 3) {
@@ -513,12 +541,12 @@ function delete_question(obj){
       next_max.id = "ques_" + count + ".maxnumber";
       next_max.name = "ques_" + count + ".maxnumber";
 
-      // if(next_integer_check) {
-      //   next_integer.checked = next_integer_check;
-      // }
-      // if(next_decimal_check) {
-      //   next_decimal.checked = next_decimal_check;
-      // }
+      if(next_integer_check) {
+        next_integer.checked = next_integer_check;
+      }
+      if(next_decimal_check) {
+        next_decimal.checked = next_decimal_check;
+      }
     }
     if(direction==0)$(current_question_div).insertBefore($(next_question_div));
     else $(next_question_div).insertBefore($(current_question_div));
