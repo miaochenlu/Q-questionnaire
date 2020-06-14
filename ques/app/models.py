@@ -198,12 +198,15 @@ class Question(db.Model):
     number_control = db.relationship('NumberControl', backref="question", uselist=False)
     row_control = db.relationship('RowControl', backref="question", uselist=False)
     questionanswers = db.relationship("QuestionAnswer", backref='question', lazy='dynamic')
+    relation = db.relationship('Relation', backref="question", uselist=False)
 
 class Option(db.Model):
     __tablename__ = "options"
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(64))
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+    relations = db.relationship("Relation", backref='option', lazy='dynamic')
+    
 
 class RowControl(db.Model):
     __tablename__ = "rowcontrols"
@@ -214,7 +217,7 @@ class RowControl(db.Model):
 class NumberControl(db.Model):
     __tablename__ = "numbercontrols"
     id = db.Column(db.Integer, primary_key=True)
-    number_type = db.Column(db.Boolean) # 0 for one row 1 for multiple row
+    number_type = db.Column(db.Boolean) # 0 int 1 for decimal
     min = db.Column(db.String(20))
     max = db.Column(db.String(20))
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
@@ -259,5 +262,11 @@ class QuestionAnswer(db.Model):
     questionaire_answer_id = db.Column(db.Integer, db.ForeignKey('questionaireanswers.id'))
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
     answer = db.Column(db.Text)
+
+class Relation(db.Model):
+    __tablename__ = "relations"
+    id = db.Column(db.Integer, primary_key=True)
+    option_id = db.Column(db.Integer, db.ForeignKey('options.id')) 
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
 login_manager.anonymous_user = AnonymousUser
