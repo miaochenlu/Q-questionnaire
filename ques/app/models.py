@@ -205,7 +205,6 @@ class Option(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(64))
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
-    relations = db.relationship("Relation", backref='option', lazy='dynamic')
     
 
 class RowControl(db.Model):
@@ -266,7 +265,8 @@ class QuestionAnswer(db.Model):
 class Relation(db.Model):
     __tablename__ = "relations"
     id = db.Column(db.Integer, primary_key=True)
-    option_id = db.Column(db.Integer, db.ForeignKey('options.id')) 
+    relate_ques = db.Column(db.Integer) 
+    relate_option = db.Column(db.Integer) 
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
 
 login_manager.anonymous_user = AnonymousUser

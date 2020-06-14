@@ -106,11 +106,6 @@ function create_question(type){
       new_question_up.setAttribute("class", "pull-right btn glyphicon glyphicon-arrow-up");
       new_question_up.setAttribute("onclick","move_question(this,0)");
       new_question_div_button.appendChild(new_question_up);
-    //delete relation
-      var new_question_remove_realtion = document.createElement("span");
-      new_question_remove_realtion.setAttribute("class", "pull-right btn glyphicon glyphicon-remove");
-      new_question_remove_realtion.setAttribute("onclick","remove_relation(this)");
-      new_question_div_button.appendChild(new_question_remove_realtion);
     //relation button
       var new_question_relation = document.createElement("span");
       new_question_relation.setAttribute("class", "pull-right btn glyphicon glyphicon-transfer")
@@ -364,6 +359,16 @@ function delete_question(obj){
                 count++;
                 alert("问题" + (count + 1) + "关联该问题！不能移动!");
                 return;
+              } else { //不关联，修改该问题选项
+                var option_node = select_ques.childNodes[0];
+                while(option_node != null) {
+                  if(option_node.value == count) {
+                    select_ques.removeChild(option_node);
+                    select_ques.innerHTML.reload;
+                    break;
+                  }
+                  option_node = option_node.nextSibling;
+                }
               }
             }
           }
@@ -377,16 +382,25 @@ function delete_question(obj){
               if(select_ques != null) {
                 var ques = select_ques.value;
                 if(ques == count) {
-                  count--;
-                  count++;
-                  
                   var option_node = select_ques.childNodes[0];
                   while(option_node != null) {
                     if(option_node.value == next_count) {
-                      option_node.setAttribute("selected", true);
+                      option_node.selected = true;
                       select_ques.innerHTML.reload;
                       break;
                     }
+                    option_node.selected = false;
+                    option_node = option_node.nextSibling;
+                  }
+                } else if(ques == next_count) {
+                  var option_node = select_ques.childNodes[0];
+                  while(option_node != null) {
+                    if(option_node.value == count) {
+                      option_node.selected = true;
+                      select_ques.innerHTML.reload;
+                      break;
+                    }
+                    option_node.selected = false;
                     option_node = option_node.nextSibling;
                   }
                 }
@@ -408,6 +422,19 @@ function delete_question(obj){
                     if(option_node.value == count) {
                       option_node.innerHTML = '问题' + (next_count + 1);
                       option_node.value = next_count + 1;
+                      select_ques.innerHTML.reload;
+                    }
+                    option_node = option_node.nextSibling;
+                  }
+                } else if (ques == next_count) { //这个应该是多余的
+                  next_count--;
+                  next_count++;
+                  
+                  var option_node = select_ques.childNodes[0];
+                  while(option_node != null) {
+                    if(option_node.value == next_count) {
+                      option_node.innerHTML = '问题' + (count + 1);
+                      option_node.value = count + 1;
                       select_ques.innerHTML.reload;
                     }
                     option_node = option_node.nextSibling;
@@ -451,75 +478,149 @@ function delete_question(obj){
 
         }
       }
-        {
-          var i = next_count;
-          i++; i++;
-          while(document.getElementById("ques_" + i + ".div") != null) {
+    } else {
+      {
+        var current_question_type = document.getElementById("ques_" + count + ".type");
+        var next_question_type = document.getElementById("ques_" + next_count + ".type");
+        var current_type = current_question_type.value;
+        var next_type = next_question_type.value;
+
+    //如果当前问题是多选或者单选，则所有下方关联选项都要更改
+        if(next_type == 0 || next_type == 1 ) {
+          var i = 0;
+          i = next_count;
+          i++;
+          //向下移动，判断下一个问题是否关联于该问题, 如果关联，不能移动
+          var tmp_next = document.getElementById("ques_" + i + ".ques_select.div");
+          if(tmp_next != null) {
             var select_ques = document.getElementById("ques_" + i + ".ques_select");
             if(select_ques != null) {
               var ques = select_ques.value;
               if(ques == next_count) {
-                count--;
-                count++;
-                
-                document.querySelector('div.ques_' + i + '.ques_select.div' + ' option[value='+ next_count + ']').innerHTML = '问题' + count;
-                document.querySelector('div.ques_' + i + '.ques_select.div' + ' option[value='+ next_count + ']').value = count;
+                next_count--;
+                next_count++;
+                alert("问题" + (next_count + 1) + "关联该问题！不能移动!");
+                return;
+              } else { //不关联，修改该问题选项
+                var option_node = select_ques.childNodes[0];
+                while(option_node != null) {
+                  if(option_node.value == next_count) {
+                    select_ques.removeChild(option_node);
+                    select_ques.innerHTML.reload;
+                    break;
+                  }
+                  option_node = option_node.nextSibling;
+                }
               }
             }
+          }
+          //不关联
+          //考虑之后的问题
+          //如果下一个问题也是单选或者多选，则之后所有的关联都要修改
+          if(current_type == 0 || current_type == 1) {
             i++;
-          }
-        }
-    } else {
-      {
-        var i = count;
-        i--;
-        //向上移动，判断该问题是否关联于上一个问题
-        var tmp_next = document.getElementById("ques_" + count + ".ques_select.div");
-        if(tmp_next != null) {
-          var select_ques = document.getElementById("ques_" + count + ".ques_select");
-          if(select_ques != null) {
-            var ques = select_ques.value;
-            if(ques == i) {
-              count--;
-              count++;
-              alert("问题" + (count + 1) + "关联该问题！不能移动!");
-              return;
+            while(document.getElementById("ques_" + i + ".div") != null) {
+              var select_ques = document.getElementById("ques_" + i + ".ques_select");
+              if(select_ques != null) {
+                var ques = select_ques.value;
+                if(ques == next_count) {
+                  next_count--;
+                  next_count++;
+                  
+                  var option_node = select_ques.childNodes[0];
+                  while(option_node != null) {
+                    if(option_node.value == count) {
+                      option_node.selected = true;
+                      select_ques.innerHTML.reload;
+                      break;
+                    }
+                    option_node.selected = false;
+                    option_node = option_node.nextSibling;
+                  }
+                } else if(ques == count) {
+                  var option_node = select_ques.childNodes[0];
+                  while(option_node != null) {
+                    if(option_node.value == next_count) {
+                      option_node.selected = true;
+                      select_ques.innerHTML.reload;
+                      break;
+                    }
+                    option_node.selected = false;
+                    option_node = option_node.nextSibling;
+                  }
+                }
+              }
+              i++;
+            }
+          } else {
+            i++;
+            while(document.getElementById("ques_" + i + ".div") != null) {
+              var select_ques = document.getElementById("ques_" + i + ".ques_select");
+              if(select_ques != null) {
+                var ques = select_ques.value;
+                if(ques == next_count) {
+                  next_count--;
+                  next_count++;
+                  
+                  var option_node = select_ques.childNodes[0];
+                  while(option_node != null) {
+                    if(option_node.value == next_count) {
+                      option_node.innerHTML = '问题' + (count + 1);
+                      option_node.value = count + 1;
+                      select_ques.innerHTML.reload;
+                    }
+                    option_node = option_node.nextSibling;
+                  }
+                } else if (ques == count) { //这个应该是多余的
+                  count--;
+                  count++;
+                  
+                  var option_node = select_ques.childNodes[0];
+                  while(option_node != null) {
+                    if(option_node.value == count) {
+                      option_node.innerHTML = '问题' + (next_count + 1);
+                      option_node.value = next_count + 1;
+                      select_ques.innerHTML.reload;
+                    }
+                    option_node = option_node.nextSibling;
+                  }
+                }
+              }
+              i++;
             }
           }
-        }
 
-        i++; i++;
-        while(document.getElementById("ques_" + i + ".div") != null) {
-          var select_ques = document.getElementById("ques_" + i + ".ques_select");
-          if(select_ques != null) {
-            var ques = select_ques.value;
-            if(ques == count) {
-              count--;
-              count++;
-              
-              document.querySelector('div.ques_' + i + '.ques_select.div' + ' option[value='+ count + ']').innerHTML = '问题' + next_count;
-              document.querySelector('div.ques_' + i + '.ques_select.div' + ' option[value='+ count + ']').value = next_count;
+
+        } else { //当前问题不是单选或多选，只需要考虑next
+          var i = 0;
+          i = next_count;
+          i++;
+          if(current_type == 0 || current_type == 1) {
+            i++;
+            while(document.getElementById("ques_" + i + ".div") != null) {
+              var select_ques = document.getElementById("ques_" + i + ".ques_select");
+              if(select_ques != null) {
+                var ques = select_ques.value;
+                if(ques == next_count) {
+                  next_count--;
+                  next_count++;
+                  
+                  var option_node = select_ques.childNodes[0];
+                  while(option_node != null) {
+                    if(option_node.value == count) {
+                      option_node.innerHTML = '问题' + (next_count + 1);
+                      option_node.value = next_count + 1;
+                      select_ques.innerHTML.reload;
+                      break;
+                    }
+                    option_node = option_node.nextSibling;
+                  }
+                }
+              }
+              i++;
             }
           }
-          i++;
-        }
-      }
-      {
-        var i = next_count;
-        i++; i++;
-        while(document.getElementById("ques_" + i + ".div") != null) {
-          var select_ques = document.getElementById("ques_" + i + ".ques_select");
-          if(select_ques != null) {
-            var ques = select_ques.value;
-            if(ques == next_count) {
-              count--;
-              count++;
-              
-              document.querySelector('div.ques_' + i + '.ques_select.div' + ' option[value='+ next_count + ']').innerHTML = '问题' + count;
-              document.querySelector('div.ques_' + i + '.ques_select.div' + ' option[value='+ next_count + ']').value = count;
-            }
-          }
-          i++;
+
         }
       }
     }

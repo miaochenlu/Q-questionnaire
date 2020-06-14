@@ -1,6 +1,6 @@
 import os
 from app import create_app, db
-from app.models import User, Role, Post, Questionaire, Permission, Question, Option, Score, NumberControl, RowControl, QuestionaireRelease, QuestionaireAnswer, QuestionAnswer
+from app.models import User, Role, Post, Questionaire, Permission, Question, Option, Score, NumberControl, RowControl, Relation, QuestionaireRelease, QuestionaireAnswer, QuestionAnswer
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 
@@ -13,6 +13,7 @@ def make_shell_context():
                 Questionaire=Questionaire, Permission=Permission, 
                 Question=Question, Option=Option, Score=Score,
                 NumberControl=NumberControl, RowControl=RowControl,
+                Relation=Relation,
                 QuestionaireRelease=QuestionaireRelease,
                 QuestionaireAnswer=QuestionaireAnswer,
                 QuestionAnswer=QuestionAnswer,

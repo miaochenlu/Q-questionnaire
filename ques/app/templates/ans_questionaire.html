@@ -2,6 +2,11 @@
 
 {% block title %}Flasky - Questionaire{% endblock %}
 
+{% block head %}
+{{super()}}
+<script src="{{ url_for('static', filename='ans_question.js') }}"></script> 
+{% endblock head %}
+
 {% block page_content %}
     <div class="row">
         <div class="page-header">
@@ -16,7 +21,12 @@
         <form method="POST">
             <div id="question_list">
                 {% for i in range(0, length) %}
+                {% if renderQuestions[i].question.relation %}
+                <div id="ques_{{i}}.div" class="form-group row well" style="display:none">
+                {% else %}
                 <div id="ques_{{i}}.div" class="form-group row well">
+                {% endif %}
+                
                     <div class="row">
                         <label class="form-label" id="ques_{{i}}.description">{{i+1}}.&nbsp;{{renderQuestions[i].question.description}}</label>
                     </div>
@@ -24,14 +34,14 @@
                     {% if renderQuestions[i].question.type == 0 %}
                         {% for j in range(0, renderQuestions[i].options|length) %}
                             <div class="custom-control custom-radio">
-                                <input name="ques_{{i}}_ans" id="ques_{{i}}-option_{{j}}" class="custom-control-input" type="radio" value="{{j}}" />
+                                <input name="ques_{{i}}.ans" id="ques_{{i}}.option-{{j}}" class="custom-control-input" type="radio" value="{{j}}" onclick="judge_display(this)"/>
                                 <label class="custom-control-label">{{ renderQuestions[i].options[j].description}}</label>
                             </div>
                         {% endfor %}
                     {% elif renderQuestions[i].question.type == 1 %}
                         {% for j in range(0, renderQuestions[i].options|length) %}
                             <div class="custom-control custom-checkbox">
-                                <input name="ques_{{i}}_ans{{j}}" id="ques_{{i}}_ans{{j}}" class="custom-control-input" type="checkbox" value="{{j}}" />
+                                <input name="ques_{{i}}.ans-{{j}}" id="ques_{{i}}.ans-{{j}}" class="custom-control-input" type="checkbox" value="{{j}}" onclick="judge_display(this)"/>
                                 <label class="custom-control-label">{{ renderQuestions[i].options[j].description}}</label>
                             </div>
                         {% endfor %}
@@ -39,9 +49,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 {% if renderQuestions[i].question.row_control.row_type %}
-                                    <textarea rows="8" class="form-control mb-2" name="ques_{{i}}_ans" id="ques_{{i}}_ans"></textarea>
+                                    <textarea rows="8" class="form-control mb-2" name="ques_{{i}}.ans" id="ques_{{i}}.ans"></textarea>
                                 {% else %}
-                                    <input class="form-control mb-2" name="ques_{{i}}_ans" id="ques_{{i}}_ans"/>
+                                    <input class="form-control mb-2" name="ques_{{i}}.ans" id="ques_{{i}}.ans"/>
                                 {% endif %}
                             </div>
                         </div>
@@ -49,9 +59,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 {% if renderQuestions[i].question.number_control.number_type %}
-                                    <input name="ques_{{i}}_ans" id="ques_{{i}}_ans" type="number" value="{{j}}" step="1" min={{renderQuestions[i].question.number_control.min}}, max={{renderQuestions[i].question.number_control.max}}/>
+                                    <input name="ques_{{i}}.ans" id="ques_{{i}}.ans" type="number" value="{{j}}" step="1" min={{renderQuestions[i].question.number_control.min}}, max={{renderQuestions[i].question.number_control.max}}/>
                                 {% else %}
-                                    <input name="ques_{{i}}_ans" id="ques_{{i}}_ans" type="number" value="{{j}}" step=0.01  min={{renderQuestions[i].question.number_control.min}}, max={{renderQuestions[i].question.number_control.max}}/>
+                                    <input name="ques_{{i}}.ans" id="ques_{{i}}.ans" type="number" value="{{j}}" step=0.01  min={{renderQuestions[i].question.number_control.min}}, max={{renderQuestions[i].question.number_control.max}}/>
                                 {% endif %}
                             </div>
                         </div>
@@ -62,13 +72,48 @@
                                 <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].question.score.left_text }}</label>
                                 {% for s in range(renderQuestions[i].question.score.radio_num) %}
                                     
-                                <input name="ques_{{i}}_ans" type="radio" value="{{s}}">
+                                <input name="ques_{{i}}.ans" type="radio" value="{{s}}">
                                 <label style="vertical-align:middle;padding-left:6px;">{{s}}</label>
                                 {% endfor %}
                                 <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].question.score.right_text}}</label>
                             </div>
                         </div>
                     {% endif %}
+                    <div class="row" style="display:none">
+                        {% if renderQuestions[i].question.relation %}
+                        <div id="ques_{{i}}.ques_select.div">
+                          <label class="form-check-label">关联问题</label>
+                          <select id="ques_{{i}}.ques_select" name="ques_{{i}}.ques_select" disabled="disabled">
+                            <option value="-1">无</option>
+                            {% for j in range(0, i) %}
+                              {% if renderQuestions[j].question.type == 0 or renderQuestions[j].question.type == 1 %}
+                                {% if renderQuestions[i].question.relation.relate_ques == j %}
+                                  <option value="{{j}}" selected=true disabled="disabled">问题{{j+1}}</option>
+                                {% else %}
+                                  <option value="{{j}}" disabled="disabled">问题{{j+1}}</option>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <div id="ques_{{i}}.option_select.div">
+                          <label class="form-check-label">关联选项</label>
+                          <select id="ques_{{i}}.option_select" name="ques_{{i}}.option_select" disabled="disabled">
+                            {% for j in range(0, i) %}
+                              {% if renderQuestions[i].question.relation.relate_ques == j %}
+                                {% for s in range(0, renderQuestions[j].options|length) %}
+                                  {% if renderQuestions[i].question.relation.relate_option == s %}
+                                    <option value="{{s}}" selected=true disabled="disabled">选项{{s+1}}</option>
+                                  {% else %}
+                                    <option value="{{s}}" disabled="disabled">选项{{s+1}}</option>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+                        {% endif %}
+                      </div>
                 </div>
                 </div>
                 {% endfor %}

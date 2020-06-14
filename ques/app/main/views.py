@@ -6,7 +6,7 @@ from flask_login import current_user, login_required
 from . import main
 from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm, CreateQuestionaireForm
 from .. import db
-from ..models import User, Role, Post, Permission, Questionaire, Question, Option, Score, RowControl, NumberControl,QuestionaireRelease, QuestionaireAnswer, QuestionAnswer
+from ..models import User, Role, Post, Permission, Questionaire, Question, Option, Score, RowControl, NumberControl, Relation, QuestionaireRelease, QuestionaireAnswer, QuestionAnswer
 from ..decorators import admin_required
 
 @main.route('/', methods=['GET', 'POST'])
@@ -152,6 +152,8 @@ def question_delete(questionaire):
             db.session.delete(question.number_control)
         if question.row_control is not None:
             db.session.delete(question.row_control)
+        if question.relation is not None:
+            db.session.delete(question.relation)
         db.session.delete(question)
     db.session.commit()
 
@@ -177,6 +179,7 @@ def create_question(id):
                 get_set_score(question_form, add_db_question.id)
                 get_set_number(question_form, add_db_question.id)
                 get_set_row(question_form, add_db_question.id)
+                get_set_relation(question_form, add_db_question.id)
                 db.session.commit()
                 question_count += 1
             else:
@@ -239,6 +242,18 @@ def create_question(id):
             db.session.add(row_ctr)
             db.session.commit()
 
+    def get_set_relation(question_form, question_id):
+        question = Question.query.get_or_404(question_id)
+        relate_ques_number =  question_form + ".ques_select"
+        relate_option_number = question_form + ".option_select"
+        if relate_ques_number in request.form and relate_option_number in request.form:
+            rela = Relation (
+                relate_ques = request.form[relate_ques_number],
+                relate_option = request.form[relate_option_number],
+                question_id = question.id,
+            )
+            db.session.add(rela)
+            db.session.commit()
 
     questionaire = Questionaire.query.get_or_404(id)
     if current_user != questionaire.author:
@@ -354,38 +369,90 @@ def answer_questionaire(id):
         db.session.commit()
 
         for i in range(length):
-            if renderQuestions[i]["question"].type in [0, 2, 3, 4]:
-                if ('ques_' + str(i) + '_ans') not in request.form and renderQuestions[i]["question"].must_do == True:
-                    db.session.delete(questionaire_answer)
-                    db.session.commit()
-                    flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
-                    return render_template('ans_questionaire.html', questionaire=questionaire, 
-                            renderQuestions=renderQuestions, length=length)
-                else :
-                    qans = QuestionAnswer (
-                        questionaire_answer_id = questionaire.id,
-                        question_id = renderQuestions[i]["question"].id,
-                        answer = request.form['ques_' + str(i) + '_ans'],
-                    )
-                    db.session.add(qans)
-            elif renderQuestions[i]["question"].type == 1:
-                ans_count = 0
-                for j in range(len(renderQuestions[i]["options"])):
-                        if ('ques_' + str(i) + '_ans' + str(j)) in request.form:
+            if renderQuestions[i]["question"].relation is None:
+                if renderQuestions[i]["question"].type in [0, 2, 3, 4]:
+                    if ('ques_' + str(i) + '.ans') not in request.form and renderQuestions[i]["question"].must_do == True:
+                        db.session.delete(questionaire_answer)
+                        db.session.commit()
+                        flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
+                        return render_template('ans_questionaire.html', questionaire=questionaire, 
+                                renderQuestions=renderQuestions, length=length)
+                    else :
+                        if ('ques_' + str(i) + '.ans') in request.form:
                             qans = QuestionAnswer (
                                 questionaire_answer_id = questionaire.id,
                                 question_id = renderQuestions[i]["question"].id,
-                                answer = request.form['ques_' + str(i) + '_ans' + str(j)],
+                                answer = request.form['ques_' + str(i) + '.ans'],
                             )
-                            ans_count += 1
                             db.session.add(qans)
+                elif renderQuestions[i]["question"].type == 1:
+                    ans_count = 0
+                    for j in range(len(renderQuestions[i]["options"])):
+                            if ('ques_' + str(i) + '.ans-' + str(j)) in request.form:
+                                qans = QuestionAnswer (
+                                    questionaire_answer_id = questionaire.id,
+                                    question_id = renderQuestions[i]["question"].id,
+                                    answer = request.form['ques_' + str(i) + '.ans-' + str(j)],
+                                )
+                                ans_count += 1
+                                db.session.add(qans)
 
-                if ans_count == 0 and renderQuestions[i]["question"].must_do == True:
-                    db.session.delete(questionaire_answer)
-                    db.session.commit()
-                    flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
-                    return render_template('ans_questionaire.html', questionaire=questionaire, 
-                            renderQuestions=renderQuestions, length=length)
+                    if ans_count == 0 and renderQuestions[i]["question"].must_do == True:
+                        db.session.delete(questionaire_answer)
+                        db.session.commit()
+                        flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
+                        return render_template('ans_questionaire.html', questionaire=questionaire, 
+                                renderQuestions=renderQuestions, length=length)
+            else:
+                # 必答情况
+                must = False
+                relate_question = renderQuestions[i]["question"].relation.relate_ques
+                relate_option = renderQuestions[i]["question"].relation.relate_option
+                if renderQuestions[relate_question]["question"].type == 0:
+                    if ('ques_' + str(relate_question) + '.ans') not in request.form or request.form['ques_' + str(relate_question) + '.ans'] != str(relate_option):
+                        must = False
+                    else:
+                        must = True
+                elif renderQuestions[relate_question]["question"].type == 1:
+                    if ('ques_' + str(relate_question) + '.ans-' + str(relate_option)) not in request.form:
+                        must = False
+                    else:
+                        must = True
+
+                if renderQuestions[i]["question"].type in [0, 2, 3, 4]:
+                    if must == True and ('ques_' + str(i) + '.ans') not in request.form and renderQuestions[i]["question"].must_do == True:
+                        db.session.delete(questionaire_answer)
+                        db.session.commit()
+                        flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
+                        return render_template('ans_questionaire.html', questionaire=questionaire, 
+                                renderQuestions=renderQuestions, length=length)
+                    else :
+                        if ('ques_' + str(i) + '.ans') in request.form:
+                            qans = QuestionAnswer (
+                                questionaire_answer_id = questionaire.id,
+                                question_id = renderQuestions[i]["question"].id,
+                                answer = request.form['ques_' + str(i) + '.ans'],
+                            )
+                            db.session.add(qans)
+                elif renderQuestions[i]["question"].type == 1:
+                    ans_count = 0
+                    for j in range(len(renderQuestions[i]["options"])):
+                            if ('ques_' + str(i) + '.ans-' + str(j)) in request.form:
+                                qans = QuestionAnswer (
+                                    questionaire_answer_id = questionaire.id,
+                                    question_id = renderQuestions[i]["question"].id,
+                                    answer = request.form['ques_' + str(i) + '.ans-' + str(j)],
+                                )
+                                ans_count += 1
+                                db.session.add(qans)
+
+                    if must == True and ans_count == 0 and renderQuestions[i]["question"].must_do == True:
+                        db.session.delete(questionaire_answer)
+                        db.session.commit()
+                        flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
+                        return render_template('ans_questionaire.html', questionaire=questionaire, 
+                                renderQuestions=renderQuestions, length=length)
+
             db.session.commit()
         flash("提交成功！感谢您的参与")
         return render_template("warning.html")
