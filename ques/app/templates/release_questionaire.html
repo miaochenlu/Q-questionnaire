@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Flasky - Release{% endblock %}
+{% block title %}Q! - Release{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -67,8 +67,7 @@
 <div class="page-header">
     <h1>Release</h1>
 </div>
-<div class="col-md-4">
-    <div class="col-md-4">
+<div >
         <form method="post" action="">
         
                 <div class="form-group">
@@ -84,17 +83,17 @@
                 </div>
                 <div class="form-group" id="control_mode_times">
                         <label for="mode">填写模式</label>
-                        <div name="radio0" class="radio ml-4" style="margin-left: 30px;">
+                        <div name="radio0" class="radio" style="margin-left: 30px;">
                             <input id="mode-0" name="mode" type="radio" value="0" checked onclick="hide()">
-                            <label for="mode-0">仅注册用户可填写</label>
+                            <label for="mode-0" >仅注册用户可填写</label>
                         </div>
                     
-                        <div name="radio1" class="radio ml-4" style="margin-left: 30px;">
+                        <div name="radio1" class="radio" style="margin-left: 30px;">
                             <input id="mode-1" name="mode" type="radio" value="1" onclick="show()">
                             <label for="mode-1">无需注册, 可填写限定次</label>
                         </div>
                     
-                        <div name="radio2" class="radio ml-4" style="margin-left: 30px;">
+                        <div name="radio2" class="radio" style="margin-left: 30px;">
                             <input id="mode-2" name="mode" type="radio" value="2" onclick="show()">
                             <label for="mode-2">无需注册, 每天可填写限定次</label>
                         </div>
@@ -103,6 +102,5 @@
                 <button class="btn btn-primary" type="submit">发布</button>
             </div>
         </form>
-    </div>
 </div>
 {% endblock %}

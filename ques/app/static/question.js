@@ -357,7 +357,7 @@ function delete_question(obj){
               if(ques == count) {
                 count--;
                 count++;
-                alert("问题" + (count + 1) + "关联该问题！不能移动!");
+                alert("问题" + (next_count + 1) + "关联问题" + (count+1) + "！不能移动!");
                 return;
               } else { //不关联，修改该问题选项
                 var option_node = select_ques.childNodes[0];
@@ -499,7 +499,7 @@ function delete_question(obj){
               if(ques == next_count) {
                 next_count--;
                 next_count++;
-                alert("问题" + (next_count + 1) + "关联该问题！不能移动!");
+                alert("问题" + (count + 1) + "关联问题" + (next_count+1) + "！不能移动!");
                 return;
               } else { //不关联，修改该问题选项
                 var option_node = select_ques.childNodes[0];
@@ -1141,60 +1141,49 @@ function create_relation(obj){
 }
 
 
+function create_relation_prime(obj){
+  var count = obj.parentNode.parentNode.parentNode.id.split('_')[1].split('.')[0];
+  var relation_div = obj.parentNode.parentNode.nextSibling.nextSibling.nextSibling.nextSibling;
 
+  var choose_ques_div = document.getElementById("ques_" + count + ".ques_select.div");
+  if(choose_ques_div == null) {
+    var choose_ques_div = document.createElement("div");
+    choose_ques_div.id = "ques_" + count + ".ques_select.div";
+    var choose_ques_label = document.createElement("label")
+    choose_ques_label.setAttribute("class", "form-check-label")
+    choose_ques_label.innerHTML = "选择关联问题";
 
-// function create_relation(obj){
-//   var count=obj.parentNode.parentNode.parentNode.id.split('_')[1].split('.')[0];
-//   var relation_div=obj.parentNode.parentNode.nextSibling.nextSibling;
+    var choose_ques_select = document.createElement("select");
+    choose_ques_select.id = "ques_" + count + ".ques_select";
+    choose_ques_select.name = "ques_" + count + ".ques_select";
 
-//   var choose_ques_div = document.getElementById("ques_" + count + ".ques_select.div");
-//   if(choose_ques_div == null) {
-//     var choose_ques_div = document.createElement("div");
-//     choose_ques_div.id = "ques_" + count + ".ques_select.div";
-//     choose_ques_div.setAttribute("class", "btn-group");
+    choose_ques_select.setAttribute("onchange", "create_relation_option(this)")
 
-//     var choose_ques_label = document.createElement("label")
-//     choose_ques_label.setAttribute("class", "form-check-label")
-//     choose_ques_label.innerHTML = "选择关联问题";
+    var select_option = document.createElement("option");
+    select_option.value = -1;
+    select_option.innerHTML = "无";
+    choose_ques_select.appendChild(select_option);
 
-//     var button = document.createElement("button");
-//     button.setAttribute("class", "btn btn-default dropdown-toggle");
-//     button.setAttribute("data-toggle", "dropdown");
-//     button.id = "ques_" + count + ".ques_select";
-//     button.setAttribute("onclick", "create_relation_option(this)")
+    var i = 0;
+    for(; i < count; i++) {
+      var ques = document.getElementById("ques_" + i + ".type");
+      var ques_type = ques.value;
 
-//     var ul = document.createElement("ul");
-//     ul.setAttribute("class", "dropdown-menu")
-//     ul.setAttribute("role", "menu");
-//     ul.id = "ques_" + count + ".ques_dropdown.ul";
+      if(ques_type == "0" || ques_type == "1") {
+        var select_option = document.createElement("option");
+        select_option.value = i;
+        select_option.innerHTML = "问题" + (i + 1);
 
-
-//     var select_option = document.createElement("option");
-//     select_option.value = -1;
-//     select_option.innerHTML = "无";
-//     choose_ques_select.appendChild(select_option);
-
-//     var i = 0;
-//     for(; i < count; i++) {
-//       var ques = document.getElementById("ques_" + i + ".type");
-//       var ques_type = ques.value;
-
-//       if(ques_type == "0" || ques_type == "1") {
-//         var select_option_li = document.createElement("li");
-//         var option = document.createElement("a");
-//         a.href = 
-//         select_option.value = i;
-//         select_option.innerHTML = "问题" + (i + 1);
-
-//         choose_ques_select.appendChild(select_option);
-//       }
-//     }
-//     choose_ques_div.appendChild(choose_ques_label);
-//     choose_ques_div.appendChild(choose_ques_select);
+        choose_ques_select.appendChild(select_option);
+      }
+    }
+    choose_ques_div.appendChild(choose_ques_label);
+    choose_ques_div.appendChild(choose_ques_select);
     
-//     relation_div.appendChild(choose_ques_div);
-//   }
-// }
+    relation_div.appendChild(choose_ques_div);
+  }
+}
+
 
 function create_relation_option(obj){
   var count=obj.parentNode.parentNode.parentNode.id.split('_')[1].split('.')[0];

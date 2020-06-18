@@ -4,7 +4,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = 'e7d21abac1602651114761c1cd93b24e'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
+    FLASKY_MAIL_SUBJECT_PREFIX = '[Q!]'
     FLASKY_MAIL_SENDER = 'qquestionaire@163.com'
     FLASKY_ADMIN = 'qquestionaire@163.com'
     FLASK_POSTS_PER_PAGE = 10

@@ -11,15 +11,15 @@ from ..decorators import admin_required
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = PostForm()
-    if  form.validate_on_submit() and current_user.can(Permission.WRITE_ARTICLES):
-        post = Post(body=form.body.data, author=current_user._get_current_object())
-        db.session.add(post)
-        # db.session.commit()
-        return redirect(url_for('.index'))
+    # form = PostForm()
+    # if  form.validate_on_submit() and current_user.can(Permission.WRITE_ARTICLES):
+    #     post = Post(body=form.body.data, author=current_user._get_current_object())
+    #     db.session.add(post)
+    #     # db.session.commit()
+    #     return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     if current_user.is_anonymous() == False:
-        pagination = Questionaire.query.order_by(Questionaire.timestamp.desc()).paginate(
+        pagination = Questionaire.query.order_by(Questionaire.timestamp.desc()).filter_by(author=current_user._get_current_object()).paginate(
             page, per_page=current_app.config['FLASK_POSTS_PER_PAGE'],
             error_out=False
         )
@@ -32,8 +32,7 @@ def user(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         abort(404)
-    posts = user.posts.order_by(Post.timestamp.desc()).all()
-    return render_template('user.html', user=user, posts=posts)
+    return render_template('user.html', user=user)
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
 @login_required
@@ -107,7 +106,6 @@ def get_question_dict(questionaire):
     questionaire_name = questionaire.title
     questionaire_description = questionaire.description
     questions = questionaire.questions.all()
-    # options = 
     renderQuestions = []
     for question in questions:
         q = {
@@ -140,7 +138,6 @@ def question_delete(questionaire):
     questionaire_name = questionaire.title
     questionaire_description = questionaire.description
     questions = questionaire.questions.all()
-    # options = 
     renderQuestions = []
     for question in questions:
         options = question.options.all()
@@ -266,8 +263,10 @@ def create_question(id):
     renderQuestions = get_question_dict(questionaire)
     length = len(renderQuestions)
     if request.method == 'POST':
-        questionaire.title = request.form["questionaire_title"].replace("'", "\'").replace('"', '\"')
-        questionaire.description = request.form["questionaire_description"].replace("'", "\'").replace('"', '\"')
+        # questionaire.title = request.form["questionaire_title"].replace("'", "\'").replace('"', '\"')
+        # questionaire.description = request.form["questionaire_description"].replace("'", "\'").replace('"', '\"')
+        questionaire.title = request.form["questionaire_title"]
+        questionaire.description = request.form["questionaire_description"]
         db.session.add(questionaire)
         db.session.commit()
         question_delete(questionaire)
@@ -287,7 +286,7 @@ def questionaire(id):
     renderQuestions = get_question_dict(questionaire)
     length = len(renderQuestions)
 
-    return render_template('questionaire.html', questionaire=questionaire, 
+    return render_template('preview_questionaire.html', questionaire=questionaire, 
                             renderQuestions=renderQuestions, length=length)
 
 
@@ -325,7 +324,7 @@ def release_questionaire(id):
         )
         flash("你的问卷发布成功")
         return redirect(url_for('main.questionaire', id=id))
-    return render_template('questionaire_release.html')
+    return render_template('release_questionaire.html')
 
 
 @main.route('/questionaire/<int:id>/answer', methods=["GET", "POST"])
@@ -363,7 +362,6 @@ def answer_questionaire(id):
             author_id = current_user.id if current_user.is_anonymous() == False else None,
             ip = request.remote_addr,
             timestamp = datetime.utcnow(),
-            # questionaire = questionaire
         )
         db.session.add(questionaire_answer)
         db.session.commit()
@@ -375,7 +373,7 @@ def answer_questionaire(id):
                         db.session.delete(questionaire_answer)
                         db.session.commit()
                         flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
-                        return render_template('ans_questionaire.html', questionaire=questionaire, 
+                        return render_template('answer_questionaire.html', questionaire=questionaire, 
                                 renderQuestions=renderQuestions, length=length)
                     else :
                         if ('ques_' + str(i) + '.ans') in request.form:
@@ -401,7 +399,7 @@ def answer_questionaire(id):
                         db.session.delete(questionaire_answer)
                         db.session.commit()
                         flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
-                        return render_template('ans_questionaire.html', questionaire=questionaire, 
+                        return render_template('answer_questionaire.html', questionaire=questionaire, 
                                 renderQuestions=renderQuestions, length=length)
             else:
                 # 必答情况
@@ -424,7 +422,7 @@ def answer_questionaire(id):
                         db.session.delete(questionaire_answer)
                         db.session.commit()
                         flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
-                        return render_template('ans_questionaire.html', questionaire=questionaire, 
+                        return render_template('answer_questionaire.html', questionaire=questionaire, 
                                 renderQuestions=renderQuestions, length=length)
                     else :
                         if ('ques_' + str(i) + '.ans') in request.form:
@@ -450,13 +448,13 @@ def answer_questionaire(id):
                         db.session.delete(questionaire_answer)
                         db.session.commit()
                         flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
-                        return render_template('ans_questionaire.html', questionaire=questionaire, 
+                        return render_template('answer_questionaire.html', questionaire=questionaire, 
                                 renderQuestions=renderQuestions, length=length)
 
             db.session.commit()
         flash("提交成功！感谢您的参与")
         return render_template("warning.html")
-    return render_template('ans_questionaire.html', questionaire=questionaire, 
+    return render_template('answer_questionaire.html', questionaire=questionaire, 
                             renderQuestions=renderQuestions, length=length)
 
 
@@ -489,13 +487,10 @@ def get_ans(question):
     return ans
 
 
-
-
 def get_tot_info(questionaire, release):
     questionaire_name = questionaire.title
     questionaire_description = questionaire.description
     questions = questionaire.questions.all()
-    # options = 
     renderQuestions = []
     for question in questions:
         q = {
@@ -507,7 +502,6 @@ def get_tot_info(questionaire, release):
         renderQuestions.append(q)
     return renderQuestions
 
-########################################test#########################
 
 
 @main.route('/questionaire/<int:id>/analyse', methods=["GET", "POST"])
@@ -522,8 +516,5 @@ def analyse_questionaire(id):
     release = releases[-1]
     renderQuestions = get_tot_info(questionaire, release)
     length = len(renderQuestions)
-
-
-
-    return render_template("test.html", questionaire=questionaire, renderQuestions=renderQuestions, length=length)
+    return render_template("analyse_questionaire.html", questionaire=questionaire, renderQuestions=renderQuestions, length=length)
 

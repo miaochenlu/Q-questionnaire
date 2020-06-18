@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Flasky - Questionaire{% endblock %}
+{% block title %}Q! - Questionaire{% endblock %}
 
 {% block head %}
 {{super()}}
@@ -147,12 +147,6 @@
               </li>
               <li>
                   <a href="{{ url_for('main.release_questionaire', id=questionaire.id) }}"><i class="fa fa-fw fa-folder"></i>release</a>
-              </li>
-              <li>
-                  <a href="#"><i class="fa fa-fw fa-file-o"></i> Second page</a>
-              </li>
-              <li>
-                  <a href="#"><i class="fa fa-fw fa-cog"></i> Third page</a>
               </li>
           </ul>
       </nav>

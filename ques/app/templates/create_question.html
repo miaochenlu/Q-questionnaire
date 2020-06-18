@@ -4,7 +4,7 @@
 {% import "_macros.html" as macros %}
 
 {% block title %}
-    Flasky - Create
+    Q! - Create
 {% endblock title %}
 
 
@@ -21,12 +21,12 @@
     <div class="row">
       <div class="page-header">
         <div class="form-group col-md-5">
-          <label class="form-check-label"><h2>title</h2></label>
+          <label class="form-check-label"><h2>问卷标题</h2></label>
           <input type="text" name="questionaire_title" class="form-control" value={{ questionaire.title}}></input>
         </div>
           <div class="form-group col-md-5">
-            <label class="form-check-label"><h2>Description</h2></label>
-            <input type="text" name="questionaire_description" class="form-control" value={{questionaire.description}}></input>
+            <label class="form-check-label"><h2>问卷说明</h2></label>
+            <pre><input type="text" name="questionaire_description" class="form-control" value="{{questionaire.description}}"></input></pre>
           </div>
       </div>
     </div>
@@ -65,8 +65,9 @@
             
                 <div class="ques_button" style="display:none">
                   <span class="pull-right btn glyphicon glyphicon-trash" onclick="delete_question(this)"></span>
-                  <span class="pull-right btn glyphicon glyphicon glyphicon-arrow-down" onclick="move_question(this,1)"></span>
-                  <span class="pull-right btn glyphicon glyphicon glyphicon-arrow-up" onclick="move_question(this,0)"></span>
+                  <span class="pull-right btn glyphicon glyphicon-arrow-down" onclick="move_question(this,1)"></span>
+                  <span class="pull-right btn glyphicon glyphicon-arrow-up" onclick="move_question(this,0)"></span>
+                  <span class="pull-right btn glyphicon glyphicon-transfer" onclick="create_relation_prime(this)"></span>
                   {% if renderQuestions[i].question.type == 0 or renderQuestions[i].question.type == 1 %}
                     <span class="pull-right btn glyphicon glyphicon-plus" onclick="add_option_prime(this,0)"></span>
                   {% endif %}
@@ -125,6 +126,7 @@
                 </li>
               </ul>
               {% endif %}
+
               <div class="row">
                 {% if renderQuestions[i].question.relation %}
                 <div id="ques_{{i}}.ques_select.div">
@@ -164,7 +166,7 @@
 
         {% endfor %}
       </div>
-          <button class="btn btn-primary" type="submit">Submit</button>
+          <button class="btn btn-primary" type="submit">提交</button>
           <br/>
           <br/>
   </form>

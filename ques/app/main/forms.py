@@ -50,19 +50,6 @@ class PostForm(FlaskForm):
 
 
 class CreateQuestionaireForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired(), Length(1, 20)])
-    description = TextAreaField('Description')
-    submit = SubmitField('Create')
-
-class QuestionaireReleaseForm(FlaskForm):
-    start_time = DateTimeField("开始时间",
-                          format="%Y-%m-%d %H:%M:%S", 
-                          default=datetime.now(),
-                          validators=[DataRequired()])
-    end_time = DateTimeField("结束时间",
-                          format="%Y-%m-%d %H:%M:%S", 
-                          default=datetime.now(),
-                          validators=[DataRequired()])
-    mode = RadioField("填写模式", choices=[(0, "仅注册用户可填写"), (1, "无需注册, 可填写限定次"), (2, "无需注册, 每天可填写限定次")])
-    times = IntegerField('填写次数', validators=[DataRequired()])
-    submit = SubmitField('发布')
+    title = StringField('问卷标题', validators=[DataRequired(), Length(1, 20)])
+    description = TextAreaField('问卷说明')
+    submit = SubmitField('创建')

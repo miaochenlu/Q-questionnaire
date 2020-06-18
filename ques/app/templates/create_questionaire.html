@@ -4,15 +4,15 @@
 {% import "_macros.html" as macros %}
 
 {% block title %}
-    Flasky - Create
+    Q! - Create
 {% endblock title %}
 
 {% block page_content %}
-    <div class="page-header">
-        <h1>Create Questionaire</h1>
+    <div class="page-header" style="text-align: center;">
+        <h1>创建问卷</h1>
     </div>
-    <div class="col-md-4">
-        {{ wtf.quick_form(form) }}
+    <div style="margin: auto; width: 400px;">
+        <pre>{{ wtf.quick_form(form) }}</pre>
     </div>
 {% endblock page_content %}
 
