@@ -48,14 +48,15 @@ function showPosition(position) {
         input_lng.step = 0.01;
         input_lat.type = "number";
         input_lng.type = "number";
-        lab_lat.innerHTML = "经度";
-        lab_lng.innerHTML = "纬度";
-
-        lat_div.appendChild(lab_lat);
-        lat_div.appendChild(input_lat);
+        lab_lat.innerHTML = "纬度";
+        lab_lng.innerHTML = "经度";
 
         lng_div.appendChild(lab_lng);
         lng_div.appendChild(input_lng);
+        
+        lat_div.appendChild(lab_lat);
+        lat_div.appendChild(input_lat);
+
         // <input type="number" name="ques_{{i}}.lat" id="ques_{{i}}.lat">  
         // <input type="number" name="ques_{{i}}.lng" id="ques_{{i}}.lng">  
         

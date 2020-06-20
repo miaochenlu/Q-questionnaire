@@ -402,6 +402,21 @@ def answer_questionaire(id):
                         flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
                         return render_template('answer_questionaire.html', questionaire=questionaire, 
                                 renderQuestions=renderQuestions, length=length)
+                elif renderQuestions[i]["question"].type == 5:
+                    if (('ques_' + str(i) + '.lat') not in request.form or ('ques_' + str(i) + '.lng') not in request.form) and renderQuestions[i]["question"].must_do == True:
+                        db.session.delete(questionaire_answer)
+                        db.session.commit()
+                        flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
+                        return render_template('answer_questionaire.html', questionaire=questionaire, 
+                                renderQuestions=renderQuestions, length=length)
+                    else :
+                        if ('ques_' + str(i) + '.lat') in request.form and ('ques_' + str(i) + '.lng') in request.form:
+                            qans = QuestionAnswer (
+                                questionaire_answer_id = questionaire.id,
+                                question_id = renderQuestions[i]["question"].id,
+                                answer = request.form['ques_' + str(i) + '.lat'] + " ; " + request.form['ques_' + str(i) + '.lng'],
+                            )
+                            db.session.add(qans)
             else:
                 # 必答情况
                 must = False
@@ -517,10 +532,11 @@ def get_property(question):
         question_ans = question.questionanswers.all()
         for i in range(len(question_ans)):
             ans.append(float(question_ans[i].answer))
-        prop.append(np.min(ans))
-        prop.append(np.max(ans))
-        prop.append(np.mean(ans))
-        prop.append(np.median(ans))
+        if len(question_ans) > 0:
+            prop.append(np.min(ans))
+            prop.append(np.max(ans))
+            prop.append(np.mean(ans))
+            prop.append(np.median(ans))
     return prop
 
 def get_num(question):
@@ -531,9 +547,10 @@ def get_num(question):
         question_ans = question.questionanswers.all()
         for i in range(len(question_ans)):
             ans.append(float(question_ans[i].answer))
-        for tmp_ans in ans:
-            res[tmp_ans] = res.get(tmp_ans, 0) + 1
-        res = dict(sorted(res.items(), key=lambda item: item[0]))
+        if len(question_ans) > 0:
+            for tmp_ans in ans:
+                res[tmp_ans] = res.get(tmp_ans, 0) + 1
+            res = dict(sorted(res.items(), key=lambda item: item[0]))
     return res
 
 def get_tot_info(questionaire, release):

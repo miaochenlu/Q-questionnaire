@@ -119,8 +119,10 @@
         <table class="table100 ver6 m-b-110" style="width: 700px; margin: auto;">
             <tbody>
                 {% for ans in renderQuestions[i].text %}
+                {% set list1 = ans.split(';') %}
                 <tr class="row100">
-                    <td class="column100 column1">{{ans}}</td>
+                    <td class="column100 column1">{{list1[0]}}</td>
+                    <td class="column100 column1">{{list1[1]}}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -311,7 +313,7 @@
                 },
                 series: [
                     {
-                        type: 'line',
+                        type: 'bar',
                         data: [{% for key, value in renderQuestions[i].num.items() %}{{ value }}, {% endfor %}],
                     }
                 ]
