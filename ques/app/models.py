@@ -261,6 +261,7 @@ class QuestionAnswer(db.Model):
     questionaire_answer_id = db.Column(db.Integer, db.ForeignKey('questionaireanswers.id'))
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
     answer = db.Column(db.Text)
+    
 
 class Relation(db.Model):
     __tablename__ = "relations"

@@ -23,7 +23,8 @@ function create_question(type){
               else if(type == 1) b.innerHTML = "问题" + (ques_count+1) + ": 多选题";
               else if(type == 2) b.innerHTML = "问题" + (ques_count+1) + ": 文字题";
               else if(type == 3) b.innerHTML = "问题" + (ques_count+1) + ": 数字题"
-              else b.innerHTML = "问题" + (ques_count+1) + ": 评分题";
+              else if(type == 4) b.innerHTML = "问题" + (ques_count+1) + ": 评分题";
+              else if(type == 5) b.innerHTML = "问题" + (ques_count+1) + ": 位置题";
               b.id = "ques_" + ques_count + ".info";
           info_div.appendChild(b);
       new_question_div.appendChild(info_div);
@@ -170,6 +171,7 @@ function create_question(type){
         + "<li class = \"row\" >"
         + "<input style=\"width: 120px;\" class = \"col-md-7 form-control\" type = \"number\" id = \"ques_" + ques_count + ".number\" name= \"ques_" + ques_count + ".number\"  min=\"3\" max=\"10\" placeholder = \"量表级数\" required/> </li>"
       }
+
     
       var new_relation_div = document.createElement("div");
       new_relation_div.setAttribute("class", "row");

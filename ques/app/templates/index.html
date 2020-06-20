@@ -5,7 +5,43 @@
 {% block title %}
     Q!
 {% endblock title %}
+{% block head%}
+{{super()}}
+<script type="text/javascript">
+    function copy(obj) {
+        var questionaire_id = obj.id.split('_')[1].split('.')[0];
+        const input = document.createElement('input');
+        input.setAttribute('readonly', 'readonly');
 
+        var test="http://"+document.location.host + "/questionaire/" + questionaire_id + "/answer";
+        
+        input.setAttribute('value', test);
+        document.body.appendChild(input);
+        input.setSelectionRange(0, 9999);
+        document.execCommand('copy');
+        console.log('复制成功');
+        document.body.removeChild(input);
+    }
+</script>
+
+<script>
+    function copy(obj) {
+        var questionaire_id = obj.id.split('_')[1].split('.')[0];
+        // const input = document.createElement('input');
+        // input.setAttribute('readonly', 'readonly');
+
+        var test="http://"+document.location.host + "/questionaire/" + questionaire_id + "/answer";
+        
+        // input.setAttribute('value', test);
+        // document.body.appendChild(input);
+        // input.setSelectionRange(0, 9999);
+        // document.execCommand('copy');
+        // console.log('复制成功');
+        // document.body.removeChild(input);
+        window.prompt("Copy to clipboard: Ctrl+C, Enter", test);
+    }
+  </script>
+{% endblock %}
 {% block page_content %}
     <div class="page-header">
         <h1>Hello,

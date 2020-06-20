@@ -8,6 +8,7 @@ from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm, Cr
 from .. import db
 from ..models import User, Role, Post, Permission, Questionaire, Question, Option, Score, RowControl, NumberControl, Relation, QuestionaireRelease, QuestionaireAnswer, QuestionAnswer
 from ..decorators import admin_required
+import numpy as np
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
@@ -443,13 +444,28 @@ def answer_questionaire(id):
                                 )
                                 ans_count += 1
                                 db.session.add(qans)
-
+                    
                     if must == True and ans_count == 0 and renderQuestions[i]["question"].must_do == True:
                         db.session.delete(questionaire_answer)
                         db.session.commit()
                         flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
                         return render_template('answer_questionaire.html', questionaire=questionaire, 
                                 renderQuestions=renderQuestions, length=length)
+                elif renderQuestions[i]["question"].type == 5:
+                    if (('ques_' + str(i) + '.lat') not in request.form or ('ques_' + str(i) + '.lng') not in request.form) and renderQuestions[i]["question"].must_do == True:
+                        db.session.delete(questionaire_answer)
+                        db.session.commit()
+                        flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
+                        return render_template('answer_questionaire.html', questionaire=questionaire, 
+                                renderQuestions=renderQuestions, length=length)
+                    else :
+                        if ('ques_' + str(i) + '.lat') in request.form and ('ques_' + str(i) + '.lng') in request.form:
+                            qans = QuestionAnswer (
+                                questionaire_answer_id = questionaire.id,
+                                question_id = renderQuestions[i]["question"].id,
+                                answer = request.form['ques_' + str(i) + '.lat'] + " ; " + request.form['ques_' + str(i) + '.lng'],
+                            )
+                            db.session.add(qans)
 
             db.session.commit()
         flash("提交成功！感谢您的参与")
@@ -486,6 +502,39 @@ def get_ans(question):
             ans.update(pans)
     return ans
 
+def get_text(question):
+    ans = []
+    if question.type == 2 or question.type == 5:
+        question_ans = question.questionanswers.all()
+        for i in range(len(question_ans)):
+            ans.append(question_ans[i].answer)
+    return ans
+
+def get_property(question):
+    ans = []
+    prop = []
+    if question.type == 3:
+        question_ans = question.questionanswers.all()
+        for i in range(len(question_ans)):
+            ans.append(float(question_ans[i].answer))
+        prop.append(np.min(ans))
+        prop.append(np.max(ans))
+        prop.append(np.mean(ans))
+        prop.append(np.median(ans))
+    return prop
+
+def get_num(question):
+    ans = []
+    prop = []
+    res = {}
+    if question.type == 3:
+        question_ans = question.questionanswers.all()
+        for i in range(len(question_ans)):
+            ans.append(float(question_ans[i].answer))
+        for tmp_ans in ans:
+            res[tmp_ans] = res.get(tmp_ans, 0) + 1
+        res = dict(sorted(res.items(), key=lambda item: item[0]))
+    return res
 
 def get_tot_info(questionaire, release):
     questionaire_name = questionaire.title
@@ -497,7 +546,10 @@ def get_tot_info(questionaire, release):
                     "question" : question,
                     "options" : question.options.all(),
                     "score" : question.score,
-                    "answers": get_ans(question)
+                    "answers": get_ans(question),
+                    "text": get_text(question),
+                    "num": get_num(question),
+                    "num_property": get_property(question),
         }
         renderQuestions.append(q)
     return renderQuestions
@@ -516,5 +568,23 @@ def analyse_questionaire(id):
     release = releases[-1]
     renderQuestions = get_tot_info(questionaire, release)
     length = len(renderQuestions)
-    return render_template("analyse_questionaire.html", questionaire=questionaire, renderQuestions=renderQuestions, length=length)
+    answer_count = len(QuestionaireAnswer.query.filter_by(questionaire_id=id).all())
+    return render_template("analyse_questionaire.html", release=releases[0], answer_count=answer_count, questionaire=questionaire, renderQuestions=renderQuestions, length=length)
 
+
+@main.route('/questionaire/<int:id>/text_result/<int:ques>', methods=['GET', 'POST'])
+@login_required
+def text_result(id, ques):
+    questionaire_name = questionaire.title
+    questionaire_description = questionaire.description
+    questions = questionaire.questions.all()
+    renderQuestions = []
+    for question in questions:
+        q = {
+                    "question" : question,
+                    "options" : question.options.all(),
+                    "score" : question.score,
+                    "answers": get_ans(question)
+        }
+        renderQuestions.append(q)
+    return render_template("text_result.html")

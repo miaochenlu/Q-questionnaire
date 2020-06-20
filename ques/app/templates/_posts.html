@@ -9,18 +9,22 @@
         <div class="questionaire-body">
             <div class="questionaire-footer">
                 <a href="{{url_for('main.questionaire', id=questionaire.id)}}">
-                    <span class="label label-primary">预览</span>
+                    <span class="btn btn-primary">预览</span>
                 </a>
                 {% if current_user == questionaire.author %}
+                    {% if questionaire.releases[0] %}
+                    <span class="btn btn-default" id="questionaire_{{questionaire.id}}.copylink" onclick="copy(this)">分享链接</span>
+                    <a href="{{ url_for('main.analyse_questionaire', id=questionaire.id) }}">
+                        <span class="btn btn-info">统计结果</span>
+                    </a>
+                    {% else %}
                     <a href="{{ url_for('main.create_question', id=questionaire.id) }}">
-                        <span class="label label-success">修改问题</span>
+                        <span class="btn btn-success">修改问题</span>
                     </a>
                     <a href="{{ url_for('main.release_questionaire', id=questionaire.id) }}">
-                        <span class="label label-danger">发布问卷</span>
+                        <span class="btn btn-danger">发布问卷</span>
                     </a>
-                    <a href="{{ url_for('main.analyse_questionaire', id=questionaire.id) }}">
-                        <span class="label label-info">统计结果</span>
-                    </a>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>

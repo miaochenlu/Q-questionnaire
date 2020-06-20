@@ -2,6 +2,11 @@
 
 {% block title %}Q! - Questionaire{% endblock %}
 
+{% block head %}
+{{super()}}
+<script type="text/javascript" src="{{ url_for('static', filename='location.js') }}"></script>
+{% endblock head %}
+
 {% block page_content %}
     <div class="row">
         <div class="page-header">
@@ -13,12 +18,17 @@
     </div>
 
     <div class>
-        <form method="POST">
+        <form method="POST GET">
             <div id="question_list">
                 {% for i in range(0, length) %}
                 <div id="ques_{{i}}.div" class="form-group row well">
                     <div class="row">
-                        <label class="form-label" id="ques_{{i}}.description">{{i+1}}.&nbsp;{{renderQuestions[i].question.description}}</label>
+                        <label class="form-label" id="ques_{{i}}.description">
+                            {% if renderQuestions[i].question.must_do %}
+                            <span style="color: red;">* </span>
+                            {% endif %}
+                            {{i+1}}.&nbsp;{{renderQuestions[i].question.description}}
+                        </label>
                     </div>
                     
                     {% if renderQuestions[i].question.type == 0 %}
@@ -66,6 +76,13 @@
                                 <label style="vertical-align:middle;padding-left:6px;">{{s}}</label>
                                 {% endfor %}
                                 <label style="vertical-align:middle;padding-left:6px;">{{ renderQuestions[i].question.score.right_text}}</label>
+                            </div>
+                        </div>
+
+                    {% elif  renderQuestions[i].question.type == 5 %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <span class="pull-left btn" onclick="getLocation(this)">获取当前位置</span>
                             </div>
                         </div>
                     {% endif %}

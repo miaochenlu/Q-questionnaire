@@ -47,6 +47,8 @@
                    <b id="ques_{{i}}.info">问题{{i+1}}: 数字题 </b>
                 {% elif renderQuestions[i].question.type==4 %}
                   <b id="ques_{{i}}.info">问题{{i+1}}: 评分题 </b>
+                {% elif renderQuestions[i].question.type==5 %}
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 位置题 </b>
                 {% endif %}
               </div>
               
@@ -113,7 +115,7 @@
                   <input class = "col-md-7 form-control" type = "number" id = "ques_{{i}}.maxnumber" name= "ques_{{i}}.maxnumber"  step=0.01 value="{{renderQuestions[i].question.number_control.max}}" required/> </li>
                 </li>
               </ul>
-              {% else %}
+              {% elif renderQuestions[i].question.type == 4 %}
               <ul class="form-inline" style="list-style-type:none">
                 <li class = "row" > 
                   <input class = "col-md-7 form-control" type = "text" id = "ques_{{i}}.lefttext" name= "ques_{{i}}.lefttext" value="{{renderQuestions[i].question.score.left_text}}" required/>
@@ -177,6 +179,7 @@
     <button type="button" class="btn btn-success" onclick="create_question(2)">文字题</button>
     <button type="button" class="btn btn-danger" onclick="create_question(3)">数字题</button>
     <button type="button" class="btn btn-warning" onclick="create_question(4)">评分题</button>
+    <button type="button" class="btn btn-default" onclick="create_question(5)">位置题</button>
   </div>
   <br/>
   <br/>

@@ -5,6 +5,24 @@
     Q! - Analyse
 {% endblock title %}
 
+{% block head %}
+{{super()}}
+<script type="text/javascript" src="{{ url_for('static', filename='echarts.min.js') }}"></script>
+
+
+<!--===============================================================================================-->
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='animate.css') }}">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='select.css') }}">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='scroll_bar.css') }}">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='table_util.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='table_main.css') }}">
+<!--===============================================================================================-->
+
+{% endblock head %}
 
 {% block body %}
 {{ super() }}
@@ -12,15 +30,105 @@
     <h1>{{questionaire.title}}</h1>
     <p>{{questionaire.description}}</p>
 </div>
+<br>
+<br>
+<div class="table100 ver1 m-b-110" style="width: 700px; margin: auto;">
+    <table data-vertable="ver1">
+        <thead>
+            <tr class="row100 head">
+                <th class="column100 column1" data-column="column1">问卷开放时间</th>
+                <th class="column100 column2" data-column="column2">问卷关闭时间</th>
+                <th class="column100 column3" data-column="column3">填写次数</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="row100">
+                <td class="column100 column1" data-column="column1">{{release.start_time}}</td>
+                <td class="column100 column2" data-column="column2">{{release.finish_time}}</td>
+                <td class="column100 column3" data-column="column3">{{answer_count}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <br>
+</div>
+
+
+
+
+
+
+
 
 {% for i in range(length) %}
-{% if renderQuestions[i].question.type == 0 or renderQuestions[i].question.type == 1 or renderQuestions[i].question.type == 4%} 
+    {% if renderQuestions[i].question.type == 0 or renderQuestions[i].question.type == 1 or renderQuestions[i].question.type == 4%} 
     <div id="bar_{{i}}" style="width:600px; height:400px; margin:0 auto;">
     </div>
     {% elif renderQuestions[i].question.type == 2 %}
-    <div id="text_{i}}"></div>
+    <div id="text_{i}}" style="width: 600px; height: 400px; margin: 0px auto; -webkit-tap-highlight-color: transparent; user-select: none; position: relative;">
+        <h4>问题{{i+1}}: {{renderQuestions[i].question.description}}</h4>
+        <br>
+        <br>
+        <!-- <a href="{{url_for('main.text_result', id=questionaire.id, ques=i)}}">查看结果</a> -->
+        <table class="table100 ver2 m-b-110" data-vertable="ver2" style="width: 700px; margin: auto;">
+            <tbody>
+                {% for ans in renderQuestions[i].text %}
+                <tr class="row100">
+                    <td class="column100 column1">{{ans}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <br>
+
+    </div>
     {% elif renderQuestions[i].question.type == 3 %}
-    <div id="num_{i}}"></div>
+    <div id="num_{{i}}" style="width:600px; height:400px; margin:0 auto;"></div>
+    <div id="num_table_{{i}}" style="width: 600px; height: 400px; margin: 0px auto; -webkit-tap-highlight-color: transparent; user-select: none; position: relative;">
+        <br>
+        <br>
+        <table class="table100 ver1 m-b-110" style="width: 700px; margin: auto;">
+            <thead>
+                <tr class="row100 head">
+                    <th class="column100 column1" data-column="column1">最小值</th>
+                    <th class="column100 column2" data-column="column2">最大值</th>
+                    <th class="column100 column3" data-column="column3">平均值</th>
+                    <th class="column100 column3" data-column="column3">中位数</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="row100">
+                {% for ans in renderQuestions[i].num_property %}
+                    <td class="column100 column1">{{ans}}</td>
+                {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+
+    {% elif renderQuestions[i].question.type == 5 %}
+    <div id="location_{i}}" style="width: 600px; height: 400px; margin: 0px auto; -webkit-tap-highlight-color: transparent; user-select: none; position: relative;">
+        <h4>问题{{i+1}}: {{renderQuestions[i].question.description}}</h4>
+        <br>
+        <br>
+        <!-- <a href="{{url_for('main.text_result', id=questionaire.id, ques=i)}}">查看结果</a> -->
+        <table class="table100 ver6 m-b-110" style="width: 700px; margin: auto;">
+            <tbody>
+                {% for ans in renderQuestions[i].text %}
+                <tr class="row100">
+                    <td class="column100 column1">{{ans}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <br>
+
+    </div>
     {% endif%}
 {% endfor %}
 <script type="text/javascript">
@@ -111,6 +219,100 @@
                     {
                         type: 'bar',
                         data: [{% for key, value in renderQuestions[i].answers.items() %}{{ value }}, {% endfor %}],
+                    }
+                ]
+                
+            };
+
+            chart.setOption(optionChart);
+        {% endif %}
+    {% endfor %}
+</script>
+
+<script type="text/javascript">
+    {% for i in range(length) %}   
+        {% if renderQuestions[i].question.type == 3%} 
+            var chart = echarts.init(document.getElementById('num_{{i}}'));
+            optionChart = {
+                title: {
+                    text: '问题{{i+1}}: {{renderQuestions[i].question.description}}',
+                    left: 0,
+                    top: -5,
+                    subtextStyle: {
+                        fontWeight: 'bolder'
+                },
+            },
+                toolbox: {
+                show: true,
+                feature: {
+                    saveAsImage: {}
+                }
+                },
+                legend: {
+                    show: true
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                grid: {
+                    bottom: 90
+                },
+                xAxis: {
+                    type: 'category',
+                    data:  [{% for key, value in renderQuestions[i].num.items() %}{{ key}}, {% endfor %}],
+                    name: '选项',
+                    // nameLocation: 'left',
+                    nameGap: 10,
+                    silent: false,
+                    splitLine: {
+                        show: false
+                    },
+                    splitArea: {
+                        show: false
+                    },
+                    nameTextStyle: {
+                        fontWeight: 'bolder'
+                    },
+                
+                    axisLabel: {
+                        interval: 0,
+                        formatter:function(value){  
+                            var ret = "";
+                            var maxLength = 18;
+                            var valLength = value.length;
+                            var rowN = Math.ceil(valLength / maxLength);
+                            if (rowN > 1)
+                            {
+                                for (var i=0; i<rowN; i++){
+                                var temp = "";
+                                var start = i * maxLength;
+                                var end = start + maxLength;
+                                temp = value.substring(start, end) + "\n";
+                                ret += temp;
+                                }
+                                    return ret;
+                            }else{
+                                return value;
+                            }
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '人数',
+                    nameLocation: 'center',
+                    nameGap: 42,
+                    splitArea: {
+                        show: false
+                    },
+                    nameTextStyle: {
+                        fontWeight: 'bolder'
+                    }
+                },
+                series: [
+                    {
+                        type: 'line',
+                        data: [{% for key, value in renderQuestions[i].num.items() %}{{ value }}, {% endfor %}],
                     }
                 ]
                 
