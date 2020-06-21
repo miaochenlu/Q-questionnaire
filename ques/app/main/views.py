@@ -376,7 +376,7 @@ def answer_questionaire(id):
                         flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
                         return render_template('answer_questionaire.html', questionaire=questionaire, 
                                 renderQuestions=renderQuestions, length=length)
-                    else :
+                    elif ('ques_' + str(i) + '.ans') in request.form:
                         if ('ques_' + str(i) + '.ans') in request.form:
                             qans = QuestionAnswer (
                                 questionaire_answer_id = questionaire.id,
@@ -433,6 +433,7 @@ def answer_questionaire(id):
                     else:
                         must = True
 
+
                 if renderQuestions[i]["question"].type in [0, 2, 3, 4]:
                     if must == True and ('ques_' + str(i) + '.ans') not in request.form and renderQuestions[i]["question"].must_do == True:
                         db.session.delete(questionaire_answer)
@@ -440,7 +441,7 @@ def answer_questionaire(id):
                         flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
                         return render_template('answer_questionaire.html', questionaire=questionaire, 
                                 renderQuestions=renderQuestions, length=length)
-                    else :
+                    elif must == True:
                         if ('ques_' + str(i) + '.ans') in request.form:
                             qans = QuestionAnswer (
                                 questionaire_answer_id = questionaire.id,
@@ -473,7 +474,7 @@ def answer_questionaire(id):
                         flash('问题' + str(i+1) + '是必答题，您还没有作答', 'error')
                         return render_template('answer_questionaire.html', questionaire=questionaire, 
                                 renderQuestions=renderQuestions, length=length)
-                    else :
+                    elif must == True:
                         if ('ques_' + str(i) + '.lat') in request.form and ('ques_' + str(i) + '.lng') in request.form:
                             qans = QuestionAnswer (
                                 questionaire_answer_id = questionaire.id,

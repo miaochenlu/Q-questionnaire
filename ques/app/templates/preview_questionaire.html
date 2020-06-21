@@ -4,7 +4,8 @@
 
 {% block head %}
 {{super()}}
-<script type="text/javascript" src="{{ url_for('static', filename='location.js') }}"></script>
+<script src="http://libs.baidu.com/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=Ql3PbO2VkHF6Iu4WyYtHGcjQCYMD4Hm9"></script>
 {% endblock head %}
 
 {% block page_content %}
@@ -85,6 +86,7 @@
                                 <span class="pull-left btn" onclick="getLocation(this)">获取当前位置</span>
                             </div>
                         </div>
+                        <div class="row" id="ques_{{i}}.map" style="height: 300px;"></div>
                     {% endif %}
 
                     <div class="row">
@@ -167,3 +169,8 @@
       <!-- /#page-content-wrapper -->
 </div>
 {% endblock content %}
+
+{% block scripts  %}
+    {{super()}}
+    <script type="text/javascript" src="{{ url_for('static', filename='location.js') }}"></script>
+{% endblock scripts %}
