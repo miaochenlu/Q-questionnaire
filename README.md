@@ -12,5 +12,11 @@ db.create_all()
 
 创建数据库
 
+
+
+
+
+运行程序
+
 python manage.py runserver  --host=0.0.0.0 --port=80
 
