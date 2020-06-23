@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Q! - Release{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style type="text/css">
+    div.radio0 div.radio1 div.radio2 #mode-1{
+        padding-left: 100px;
+    }
+</style>
+
+<script type="text/javascript">
+    function show() {
+        var pdiv = document.getElementById('control_mode_times')
+        var test = document.getElementById('times_div')
+        if(!test){
+            var times_div = document.createElement("div");
+            times_div.id = "times_div";
+            times_div.name = "times_div";
+            times_div.setAttribute("class", "form-group");
+
+            var timesLabel = document.createElement("label")
+            timesLabel.innerHTML = "填写次数";
+            times_div.appendChild(timesLabel);
+
+            var timesInput = document.createElement("input");
+            timesInput.setAttribute("class", "control-label");
+            timesInput.id = "times";
+            timesInput.name = "times";
+            timesInput.type = "number";
+            timesInput.required = "required";
+
+            times_div.appendChild(timesInput);
+            pdiv.appendChild(times_div);
+            // alert('clicked');
+        }
+    }
+    function hide() {
+        var pdiv = document.getElementById('control_mode_times')
+        var test = document.getElementById('times_div')
+        if(test){
+            pdiv.removeChild(test)
+        }
+    }
+
+    window.onload=function(){
+
+        var today = new Date();
+        var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        var time = today.getHours() + ":" + today.getMinutes();
+        var dateTime = date+'T'+time;
+
+        // today = yyyy + '/' + mm + '/' + dd;
+        console.log(today);
+        document.getElementById("start_time").min = dateTime;
+        document.getElementById("start_time").value = dateTime;
+        document.getElementById("finish_time").min = dateTime;
+        document.getElementById("finish_time").value = dateTime;
+    }
+</script>
+
+{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Release</h1>
+</div>
+<div >
+        <form method="post" action="">
+        
+                <div class="form-group">
+                    <label name="start_time_label" id="start_time_label">开始时间</label>
+                    <input type="datetime-local" id="start_time" name="start_time" 
+                             
+                            max="3000-12-31T00:00">
+                </div>
+                <div class="form-group">
+                    <label name="finish_time_label" id="finish_time_label">结束时间</label>
+                    <input type="datetime-local" id="finish_time" name="finish_time" 
+                            max="3000-12-31T00:00">
+                </div>
+                <div class="form-group" id="control_mode_times">
+                        <label for="mode">填写模式</label>
+                        <div name="radio0" class="radio" style="margin-left: 30px;">
+                            <input id="mode-0" name="mode" type="radio" value="0" checked onclick="hide()">
+                            <label for="mode-0" >仅注册用户可填写</label>
+                        </div>
+                    
+                        <div name="radio1" class="radio" style="margin-left: 30px;">
+                            <input id="mode-1" name="mode" type="radio" value="1" onclick="show()">
+                            <label for="mode-1">无需注册, 可填写限定次</label>
+                        </div>
+                    
+                        <div name="radio2" class="radio" style="margin-left: 30px;">
+                            <input id="mode-2" name="mode" type="radio" value="2" onclick="show()">
+                            <label for="mode-2">无需注册, 每天可填写限定次</label>
+                        </div>
+                </div>
+            <div class="from-group">
+                <button class="btn btn-primary" type="submit">发布</button>
+            </div>
+        </form>
+</div>
+{% endblock %}

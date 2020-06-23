@@ -1,0 +1,33 @@
+<div class="row">
+    {% for questionnaire in questionnaires %}
+    <div class="card well">
+        <div class="card-body">
+            <h4 class="card-title">{{ questionnaire.title }}</h4>
+            <p class="card-text">{{ moment(questionnaire.timestamp).fromNow() }}</p>
+            <p class="card-text"><a href="{{ url_for('.user', username=questionnaire.author.username) }}">{{ questionnaire.author.username }}</a></p>
+        </div>
+        <div class="questionnaire-body">
+            <div class="questionnaire-footer">
+                <a href="{{url_for('main.questionnaire', id=questionnaire.id)}}">
+                    <span class="btn btn-primary">预览</span>
+                </a>
+                {% if current_user == questionnaire.author %}
+                    {% if questionnaire.releases[0] %}
+                    <span class="btn btn-default" id="questionnaire_{{questionnaire.id}}.copylink" onclick="copy(this)">分享链接</span>
+                    <a href="{{ url_for('main.analyse_questionnaire', id=questionnaire.id) }}">
+                        <span class="btn btn-info">统计结果</span>
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('main.create_question', id=questionnaire.id) }}">
+                        <span class="btn btn-success">修改问题</span>
+                    </a>
+                    <a href="{{ url_for('main.release_questionnaire', id=questionnaire.id) }}">
+                        <span class="btn btn-danger">发布问卷</span>
+                    </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>

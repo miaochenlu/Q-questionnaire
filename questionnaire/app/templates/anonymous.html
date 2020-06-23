@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+    Q!
+{% endblock title %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h1>Hello,
+            {% if current_user.is_authenticated %}
+                {{ current_user.username }}
+            {% else %}
+                Stranger
+            {% endif %}!
+        </h1>
+    </div>
+
+<!-- {% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock scripts%} -->
+
+{% endblock page_content %}
+
+{% block content %}
+{{super()}}
+<!-- 侧滑菜单 -->
+<div id="wrapper">
+      <div class="overlay"></div> 
+      <!-- Sidebar -->
+      <nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation">
+          <ul class="nav sidebar-nav">
+              <li class="sidebar-brand">
+                  <a href="{{ url_for('main.index') }}">
+                     Home
+                  </a>
+              </li>
+              <li>
+                  <a href="{{ url_for('main.create_questionnaire') }}"><i class="fa fa-fw fa-home"></i> create</a>
+              </li>
+          </ul>
+      </nav>
+      <!-- /#sidebar-wrapper -->
+
+      <!-- Page Content -->
+      <div id="page-content-wrapper">
+        <button type="button" class="hamburger is-closed animated fadeInLeft" data-toggle="offcanvas">
+          <span class="hamb-top"></span>
+          <span class="hamb-middle"></span>
+          <span class="hamb-bottom"></span>
+        </button>
+      </div>
+      <!-- /#page-content-wrapper -->
+</div>
+{% endblock content %}

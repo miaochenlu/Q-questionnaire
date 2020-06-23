@@ -1,0 +1,193 @@
+
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}
+    Q! - Create
+{% endblock title %}
+
+
+{% block head %}
+{{super()}}
+<script src="{{ url_for('static', filename='question.js') }}"></script> 
+{% endblock head %}
+
+{% block page_content %}
+
+
+<div>
+  <form id="formId" method="POST">
+    <div class="row">
+      <div class="page-header">
+        <div class="form-group col-md-5">
+          <label class="form-check-label"><h2>问卷标题</h2></label>
+          <input type="text" name="questionnaire_title" class="form-control" value={{ questionnaire.title}}></input>
+        </div>
+          <div class="form-group col-md-5">
+            <label class="form-check-label"><h2>问卷说明</h2></label>
+            <pre><input type="text" name="questionnaire_description" class="form-control" value="{{questionnaire.description}}"></input></pre>
+          </div>
+      </div>
+    </div>
+
+    <div id="question_list">
+        <input id="ques.id" name="ques.id" type="hidden" value="id"/>
+        {% for i in range(0, length) %}
+      
+          <div id="ques_{{i}}.div" class="form-group row well" onmouseover="show_buttons(this,0)" onmouseout="hide_buttons(this,0)">
+              <div style="font-size:13px; margin-left:5px;margin-top:-10px;margin-bottom:10px;">
+                {% if renderQuestions[i].question.type==0 %}
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 单选题</b>
+                {% elif renderQuestions[i].question.type==1 %}
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 多选题</b>
+                {% elif renderQuestions[i].question.type==2 %}
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 文字题 </b>
+                {% elif renderQuestions[i].question.type==3 %}
+                   <b id="ques_{{i}}.info">问题{{i+1}}: 数字题 </b>
+                {% elif renderQuestions[i].question.type==4 %}
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 评分题 </b>
+                {% elif renderQuestions[i].question.type==5 %}
+                  <b id="ques_{{i}}.info">问题{{i+1}}: 位置题 </b>
+                {% endif %}
+              </div>
+              
+              <div class="form-check form-check-inline" style="margin-left: 5px;">
+                <input id="ques_{{i}}.must_do" name="ques_{{i}}.must_do" type="radio" value="1" class="form-check-input" {% if renderQuestions[i].question.must_do  %}checked=true{% endif %}/>
+                <label class="form-check-label">必做</label>
+                <input id="ques_{{i}}.option_do" name="ques_{{i}}.must_do" type="radio" value="0" class="form-check-input" {% if not renderQuestions[i].question.must_do %}checked=true {% endif %}/>
+                <label class="form-check-label">选做</label>
+              </div>
+
+    
+              <div class="row">
+                <input id="ques_{{i}}.type" name="ques_{{i}}.type" type="Hidden" value='{{ renderQuestions[i].question.type }}'/>
+                <div class="col-md-6"><input id="ques_{{i}}.description" name="ques_{{i}}.description" type="text" class="form-control" placeholder="Enter the question description" value="{{renderQuestions[i].question.description}}" /></div>
+
+            
+                <div class="ques_button" style="display:none">
+                  <span class="pull-right btn glyphicon glyphicon-trash" onclick="delete_question(this)"></span>
+                  <span class="pull-right btn glyphicon glyphicon-arrow-down" onclick="move_question(this,1)"></span>
+                  <span class="pull-right btn glyphicon glyphicon-arrow-up" onclick="move_question(this,0)"></span>
+                  <span class="pull-right btn glyphicon glyphicon-transfer" onclick="create_relation_prime(this)"></span>
+                  {% if renderQuestions[i].question.type == 0 or renderQuestions[i].question.type == 1 %}
+                    <span class="pull-right btn glyphicon glyphicon-plus" onclick="add_option_prime(this,0)"></span>
+                  {% endif %}
+                </div>
+              </div>
+
+              {% if renderQuestions[i].question.type == 0 or renderQuestions[i].question.type == 1 %}
+                <ul class="form-inline" style="list-style-type:none">
+                  {% for j in range(0, renderQuestions[i].options|length) %}
+                  <li class="row" onmouseover="show_buttons(this,1)" onmouseout="hide_buttons(this,1)">
+                    <input class="form-control col-md-7" type="text" id="ques_{{i}}.option_{{j}}" name="ques_{{i}}.option_{{j}}" value="{{renderQuestions[i]['options'][j].description}}"/>
+                    <div class="option_button" style="display:none">
+                      <span class="btn glyphicon glyphicon-arrow-up" onclick="move_option_prime(this,0)"></span>
+                      <span class="btn glyphicon glyphicon-arrow-down" onclick="move_option_prime(this,1)"></span>
+                      <span class="btn glyphicon glyphicon-trash" onclick="delete_option_prime(this)"></span>
+                    </div>
+                  </li>
+                  {% endfor %}
+                </ul>
+              {% elif renderQuestions[i].question.type == 2 %}
+              <ul class="form-inline" style="list-style-type:none">
+                <li class = "row">
+                  <div class="form-check form-check-inline" style="margin-left: 5px;">
+                  <input class = "form-check-input" type = "radio" id = "ques_{{i}}.one_row" name= "ques_{{i}}.row" value="0" {% if not renderQuestions[i].question.row_control.row_type %}checked=true {% endif %}>
+                  <label id="ques_{{i}}.row_label1" class="form-check-label">单行</label>
+                  <input class = "form-check-input" type = "radio" id = "ques_{{i}}.multi_row" name= "ques_{{i}}.row" value="1" {% if renderQuestions[i].question.row_control.row_type %}checked=true {% endif %}>
+                  <label id="ques_{{i}}.row_label2" class="form-check-label">多行</label></div>
+                </li>
+              </ul> 
+              {% elif renderQuestions[i].question.type == 3 %}
+              <ul class="form-inline" style="list-style-type:none">
+                <li class = "row">
+                  <div class="form-check form-check-inline" style="margin-left: 5px;">
+                  <input class = "form-check-input" type = "radio" id = "ques_{{i}}.integer" name= "ques_{{i}}.intordeci" value="0" {% if not renderQuestions[i].question.number_control.number_type %}checked=true {% endif %}>
+                  <label id="ques_{{i}}.num_label1" class="form-check-label">整数</label>
+                  <input class = "form-check-input" type = "radio" id = "ques_{{i}}.decimal" name= "ques_{{i}}.intordeci" value="1" {% if renderQuestions[i].question.number_control.number_type %}checked=true {% endif %}>
+                  <label id="ques_{{i}}.num_label2" class="form-check-label">小数</label></div>
+                </li>
+                <li class = "row" > 
+                  <input class = "col-md-7 form-control" type = "number" id = "ques_{{i}}.minnumber" name= "ques_{{i}}.minnumber"  step=0.01 value="{{renderQuestions[i].question.number_control.min}}" required/> </li>
+                </li>
+                <li class = "row" > 
+                  <input class = "col-md-7 form-control" type = "number" id = "ques_{{i}}.maxnumber" name= "ques_{{i}}.maxnumber"  step=0.01 value="{{renderQuestions[i].question.number_control.max}}" required/> </li>
+                </li>
+              </ul>
+              {% elif renderQuestions[i].question.type == 4 %}
+              <ul class="form-inline" style="list-style-type:none">
+                <li class = "row" > 
+                  <input class = "col-md-7 form-control" type = "text" id = "ques_{{i}}.lefttext" name= "ques_{{i}}.lefttext" value="{{renderQuestions[i].question.score.left_text}}" required/>
+                </li>
+                <li class = "row" > 
+                  <input class = "col-md-7 form-control" type = "text" id = "ques_{{i}}.righttext" name= "ques_{{i}}.righttext" value="{{renderQuestions[i].question.score.right_text}}" required/>
+                </li>
+                <li class = "row" > 
+                  <input style="width: 120px;" class = "col-md-7 form-control" type = "number" id = "ques_{{i}}.number" name= "ques_{{i}}.number"  value="{{renderQuestions[i].question.score.radio_num}}" min="3" max="10" required/> 
+                </li>
+              </ul>
+              {% endif %}
+
+              <div class="row">
+                {% if renderQuestions[i].question.relation %}
+                <div id="ques_{{i}}.ques_select.div">
+                  <label class="form-check-label">选择关联问题</label>
+                  <select id="ques_{{i}}.ques_select" name="ques_{{i}}.ques_select" onchange="create_relation_option(this)">
+                    <option value="-1">无</option>
+                    {% for j in range(0, i) %}
+                      {% if renderQuestions[j].question.type == 0 or renderQuestions[j].question.type == 1 %}
+                        {% if renderQuestions[i].question.relation.relate_ques == j %}
+                          <option value="{{j}}" selected=true>问题{{j+1}}</option>
+                        {% else %}
+                          <option value="{{j}}">问题{{j+1}}</option>
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+                <div id="ques_{{i}}.option_select.div">
+                  <label class="form-check-label">选择关联选项</label>
+                  <select id="ques_{{i}}.option_select" name="ques_{{i}}.option_select" onclick="create_relation_option(this)">
+                    {% for j in range(0, i) %}
+                      {% if renderQuestions[i].question.relation.relate_ques == j %}
+                        {% for s in range(0, renderQuestions[j].options|length) %}
+                          {% if renderQuestions[i].question.relation.relate_option == s %}
+                            <option value="{{s}}" selected=true>选项{{s+1}}</option>
+                          {% else %}
+                            <option value="{{s}}">选项{{s+1}}</option>
+                          {% endif %}
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+        {% endfor %}
+      </div>
+          <button class="btn btn-primary" type="submit">提交</button>
+          <br/>
+          <br/>
+  </form>
+
+  <div>
+    <button type="button" class="btn btn-primary" onclick="create_question(0)">单选题</button>
+    <button type="button" class="btn btn-info" onclick="create_question(1)">多选题</button>
+    <button type="button" class="btn btn-success" onclick="create_question(2)">文字题</button>
+    <button type="button" class="btn btn-danger" onclick="create_question(3)">数字题</button>
+    <button type="button" class="btn btn-warning" onclick="create_question(4)">评分题</button>
+    <button type="button" class="btn btn-default" onclick="create_question(5)">位置题</button>
+  </div>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+</div>
+
+{% endblock page_content %}
+
+
